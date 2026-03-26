@@ -1,0 +1,47 @@
+{
+  "hosting": {
+    "public": ".",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**",
+      "*.md",
+      "setup-android.sh"
+    ],
+    "headers": [
+      {
+        "source": "**/*.@(js|css)",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "max-age=86400"
+          }
+        ]
+      },
+      {
+        "source": "**/*.@(png|jpg|jpeg|gif|svg|ico)",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "max-age=604800"
+          }
+        ]
+      },
+      {
+        "source": "**/*.@(woff|woff2|ttf|otf)",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "max-age=2592000"
+          }
+        ]
+      }
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
+}
