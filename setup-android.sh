@@ -142,8 +142,8 @@ echo "[4/4] Setting up project..."
 
 if [ ! -d "$APP_DIR" ]; then
     echo "Cloning grocery-marking-app..."
-    git clone https://github.com/anomalyco/grocery-marking-app.git "$APP_DIR" 2>/dev/null || {
-        echo "Note: Project not on GitHub yet. You can push it later."
+    git clone https://github.com/Chilumulashivani659/Grocery-marking-app.git "$APP_DIR" 2>/dev/null || {
+        echo "Note: Project not found on GitHub. Push to GitHub first."
     }
 else
     echo "Project already exists at $APP_DIR"

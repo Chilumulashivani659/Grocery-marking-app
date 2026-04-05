@@ -4,7 +4,7 @@
   "description": "Easy grocery list management with swipe cards",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#F5F5F5",
+  "background_color": "#F1F8E9",
   "theme_color": "#2E7D32",
   "orientation": "portrait",
   "icons": [
