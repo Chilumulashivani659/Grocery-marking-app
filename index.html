@@ -2,491 +2,763 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Grocery Marking</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#2d7a3a">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Grocery Marking">
-<meta name="mobile-web-app-capable" content="yes">
 <meta name="application-name" content="Grocery Marking">
-<link rel="apple-touch-icon" href="icons/icon-192.svg">
-<link rel="apple-touch-startup-image" href="icons/icon-512.svg">
-<meta name="description" content="Simple grocery list manager">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icons/favicon-48.png">
+<meta name="description" content="Smart monthly grocery assistant with multi-language support and saved lists.">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-  background: #f0f7f0;
-  min-height: 100vh; min-height: 100dvh;
-  overflow-x: hidden;
-  position: relative;
-  -webkit-tap-highlight-color: transparent;
+:root {
+  --green: #2d7a3a;
+  --green-2: #3ca34e;
+  --green-bg: #f0f7f0;
+  --green-soft: #eaf4ea;
+  --green-line: #d8e8d8;
+  --text: #222;
+  --muted: #8a938a;
+  --red: #e74c3c;
+  --radius: 14px;
+  --shadow: 0 2px 10px rgba(20,60,30,0.08);
 }
 
+html, body { height: 100%; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  background: var(--green-bg);
+  color: var(--text);
+  font-size: 14px;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* ---- Faded grocery background ---- */
 .bg-items {
   position: fixed; top: 0; left: 0; width: 100%; height: 100%;
   z-index: 0; pointer-events: none; overflow: hidden;
 }
-
 .bg-item {
-  position: absolute; font-size: 40px; opacity: 0.05;
+  position: absolute; opacity: 0.05;
   animation: floatBg 30s infinite ease-in-out;
   transform: rotate(var(--rot, 0deg));
   filter: blur(2px);
 }
-
 @keyframes floatBg {
   0%, 100% { transform: translateY(0) rotate(var(--rot, 0deg)); }
   33% { transform: translateY(-12px) rotate(calc(var(--rot, 0deg) + 3deg)); }
   66% { transform: translateY(6px) rotate(calc(var(--rot, 0deg) - 3deg)); }
 }
 
-.app-container {
+/* ---- App shell ---- */
+.app-shell {
+  max-width: 520px; margin: 0 auto;
+  height: 100vh; height: 100dvh;
+  display: flex; flex-direction: column;
   position: relative; z-index: 1;
-  max-width: 600px; margin: 0 auto;
-  padding: 0 12px 80px; min-height: 100vh;
 }
 
+/* ---- Header ---- */
 header {
-  background: linear-gradient(135deg, #2d7a3a, #3ca34e);
-  color: white; padding: 10px 16px;
-  border-radius: 0 0 18px 18px;
-  box-shadow: 0 3px 16px rgba(45,122,58,0.25);
-  position: sticky; top: 0; z-index: 50;
-}
-
-.header-top {
-  display: flex; align-items: center; justify-content: space-between;
-}
-
-header h1 {
-  font-size: 18px; font-weight: 700;
-  display: flex; align-items: center; gap: 6px;
-}
-
-header h1 span { font-size: 20px; }
-
-.header-actions {
-  display: flex; gap: 4px;
-  align-items: center;
-}
-
-.icon-btn {
-  background: rgba(255,255,255,0.2);
-  border: none; color: white;
-  width: 36px; height: 36px;
-  border-radius: 10px;
-  font-size: 16px; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  transition: all 0.2s;
-  position: relative;
   flex-shrink: 0;
-}
-
-.icon-btn:hover { background: rgba(255,255,255,0.35); transform: translateY(-1px); }
-.icon-btn:active { transform: scale(0.9); }
-
-.icon-btn svg { display: block; }
-
-.icon-btn .badge {
-  position: absolute; top: -3px; right: -3px;
-  background: #e74c3c; color: white;
-  font-size: 9px; font-weight: 700;
-  width: 15px; height: 15px;
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-}
-
-/* ---- Compact Input Section ---- */
-.input-section {
-  background: white;
-  border-radius: 14px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
-  margin: 10px 0 8px;
+  background: linear-gradient(135deg, var(--green-2), var(--green));
+  color: white;
   padding: 10px 12px;
+  border-radius: 0 0 16px 16px;
+  box-shadow: 0 3px 14px rgba(45,122,58,0.28);
+  position: relative; z-index: 5;
 }
-
-.input-row {
-  display: flex; gap: 6px; align-items: center;
+.header-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+#headerTitle {
+  font-size: 17px; font-weight: 700;
+  display: flex; align-items: center; gap: 6px;
+  letter-spacing: -0.2px;
+  min-width: 0;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
+.header-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.hbtn {
+  display: flex; align-items: center; gap: 4px;
+  background: rgba(255,255,255,0.18);
+  border: none; color: white;
+  border-radius: 999px;
+  padding: 6px 11px;
+  font-size: 12px; font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+.hbtn:hover { background: rgba(255,255,255,0.32); }
+.hbtn:active { transform: scale(0.93); }
+.hbtn svg { width: 15px; height: 15px; }
 
-.input-row + .input-row { margin-top: 6px; }
+/* ---- Views ---- */
+main { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+.view {
+  flex: 1; min-height: 0;
+  display: none;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: 10px;
+}
+.view.active { display: flex; }
+#view-home { overflow: hidden; }
 
-.input-group { flex: 1; min-width: 0; }
-
-.input-group input, .input-group select {
-  width: 100%;
-  padding: 8px 10px;
-  border: 2px solid #e0e8e0;
-  border-radius: 10px;
-  font-size: 13px;
-  background: #fafcfa;
-  transition: border-color 0.2s, box-shadow 0.2s;
-  -webkit-appearance: none;
-  appearance: none;
+/* ---- Continue banner ---- */
+.continue-banner {
+  background: linear-gradient(135deg, #fff, #f2faf2);
+  border: 1px solid var(--green-line);
+  border-radius: 12px;
+  padding: 9px 12px;
+  margin-bottom: 8px;
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  box-shadow: var(--shadow);
+  flex-shrink: 0;
+  animation: cardIn 0.3s ease-out;
+}
+.cb-left { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.cb-left .cb-icon { font-size: 22px; }
+.cb-title { font-size: 13px; font-weight: 600; color: var(--green); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cb-sub { font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cb-btn {
+  flex-shrink: 0;
+  background: var(--green-2); color: white;
+  border: none; border-radius: 9px;
+  padding: 8px 14px;
+  font-size: 12px; font-weight: 600; cursor: pointer;
   font-family: inherit;
 }
+.cb-btn:active { transform: scale(0.94); }
 
-.input-group input:focus, .input-group select:focus {
-  outline: none; border-color: #3ca34e;
-  box-shadow: 0 0 0 3px rgba(60,163,78,0.12);
+/* ---- Add panel (search + master grid) ---- */
+.add-panel { flex-shrink: 0; }
+.search-box { position: relative; margin-bottom: 8px; }
+.search-box .s-icon {
+  position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
+  color: #9aa79a; display: flex; pointer-events: none;
 }
-
-.input-group select {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%23777' d='M5 6L0 0h10z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 8px center;
-  padding-right: 24px;
+.search-box input {
+  width: 100%;
+  padding: 10px 100px 10px 36px;
+  border: 2px solid var(--green-line);
+  border-radius: 12px;
+  font-size: 13px;
+  background: #fff;
+  font-family: inherit;
+  color: var(--text);
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
-
-.input-group-qty { max-width: 64px; flex: none; }
-.input-group-qty input { text-align: center; }
-
-.input-group-cat { flex: 1.2; }
-
-.add-item-btn, .reset-btn {
-  width: 36px; height: 36px;
-  border-radius: 10px;
-  border: none;
-  font-size: 16px;
-  cursor: pointer;
+.search-box input:focus { outline: none; border-color: var(--green-2); box-shadow: 0 0 0 3px rgba(60,163,78,0.12); }
+.sbtn {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  border: none; width: 24px; height: 24px; border-radius: 50%;
+  background: #eef3ee; color: #5d6e5d;
+  font-size: 13px; line-height: 1; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
-  transition: all 0.2s;
-  flex-shrink: 0;
+  transition: all 0.15s;
 }
-
-.add-item-btn {
-  background: #3ca34e; color: white;
-  box-shadow: 0 2px 6px rgba(60,163,78,0.3);
+.sbtn:active { transform: translateY(-50%) scale(0.88); background: var(--green-soft); }
+.sbtn .sbtn-svg { width: 13px; height: 13px; }
+#micBtn { right: 34px; }
+#scanBtn { right: 60px; }
+.search-box .clear-btn {
+  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+  border: none; background: #eef3ee; color: #6b7a6b;
+  width: 22px; height: 22px; border-radius: 50%;
+  font-size: 13px; line-height: 1; cursor: pointer;
+  display: none; align-items: center; justify-content: center;
 }
+.search-box .clear-btn.show { display: flex; }
 
-.add-item-btn:hover { background: #2d7a3a; transform: translateY(-1px); }
-.add-item-btn:active { transform: scale(0.92); }
-
-.reset-btn {
-  background: #f0f0f0; color: #888;
+.master-area {
+  max-height: 38vh;
+  overflow-y: auto;
+  padding: 2px 1px 4px;
+  scrollbar-width: thin;
 }
+.master-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px;
+  padding: 2px 1px 4px;
+}
+.master-tile {
+  background: #fff;
+  border: 1px solid var(--green-line);
+  border-radius: 12px;
+  padding: 8px 2px 6px;
+  text-align: center;
+  cursor: pointer;
+  font-family: inherit;
+  box-shadow: 0 1px 4px rgba(20,60,30,0.05);
+  transition: all 0.15s;
+}
+.master-tile:active { transform: scale(0.94); background: var(--green-soft); }
+.master-tile .mt-icon { font-size: 22px; display: block; margin-bottom: 2px; }
+.master-tile .mt-name {
+  font-size: 11px; font-weight: 700; color: var(--text);
+  display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.no-result { text-align: center; padding: 12px 8px 16px; color: var(--muted); display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.no-result .nr-icon { font-size: 30px; }
+.no-result .nr-text { font-size: 12.5px; font-weight: 600; }
 
-.reset-btn:hover { background: #e74c3c; color: white; }
-.reset-btn:active { transform: scale(0.92); }
+/* ---- Category sections ---- */
+.cat-section { margin-bottom: 6px; }
+.cat-header {
+  width: 100%;
+  display: flex; align-items: center; gap: 7px;
+  background: linear-gradient(135deg, #fff, #f4faf4);
+  border: 1px solid var(--green-line);
+  border-radius: 11px;
+  padding: 8px 10px;
+  cursor: pointer; font-family: inherit; text-align: left; color: var(--text);
+  box-shadow: 0 1px 4px rgba(20,60,30,0.05);
+  transition: all 0.15s;
+}
+.cat-header:active { transform: scale(0.98); }
+.cat-header .cat-ico { font-size: 17px; }
+.cat-header .cat-name { flex: 1; font-size: 12.5px; font-weight: 700; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cat-count { background: var(--green-soft); color: var(--green); font-size: 10.5px; font-weight: 700; border-radius: 999px; padding: 2px 8px; flex-shrink: 0; }
+.cat-chev { color: var(--muted); font-size: 10px; transition: transform 0.2s; flex-shrink: 0; }
+.cat-section.collapsed .cat-chev { transform: rotate(-90deg); }
+.cat-section.collapsed .cat-body { display: none; }
+.cat-body { padding-top: 5px; }
+.cat-body .master-grid { max-height: none; overflow: visible; }
+.cat-body .master-grid .master-tile { padding: 7px 2px 5px; }
 
-/* ---- Total Bar ---- */
+/* ---- Total bar ---- */
 .total-bar {
-  background: white;
+  flex-shrink: 0;
+  background: #fff;
   border-radius: 12px;
   padding: 8px 14px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
-  margin-bottom: 8px;
+  box-shadow: var(--shadow);
+  margin: 0 0 8px;
   display: flex; justify-content: space-between; align-items: center;
 }
+.total-bar .label { font-size: 12px; color: var(--muted); font-weight: 600; display: flex; align-items: center; gap: 5px; }
+.total-bar .count { font-size: 20px; font-weight: 700; color: var(--green); }
 
-.total-bar .label {
-  font-size: 12px; color: #777; font-weight: 500;
-  display: flex; align-items: center; gap: 5px;
+/* ---- Cart ---- */
+.cart-panel {
+  flex: 1; min-height: 0;
+  background: #fff;
+  border-radius: var(--radius);
+  padding: 8px;
+  box-shadow: var(--shadow);
+  overflow-y: auto;
 }
-
-.total-bar .count {
-  font-size: 20px; font-weight: 700; color: #2d7a3a;
-}
-
-/* ---- Items Section ---- */
-.items-section {
-  background: white;
-  border-radius: 14px;
-  padding: 12px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
-  margin-bottom: 12px;
-}
-
 .items-list { list-style: none; }
-
 .item-card {
-  display: flex; align-items: center;
-  padding: 8px 10px;
+  display: flex; align-items: center; gap: 7px;
+  padding: 8px;
   margin-bottom: 5px;
   background: #f9fbf9;
   border-radius: 12px;
   border: 1px solid #eef3ee;
-  transition: all 0.25s ease;
   position: relative;
-  overflow: hidden;
-  user-select: none;
-  -webkit-user-select: none;
-  touch-action: none;
-  animation: cardIn 0.3s ease-out;
-}
-
-@keyframes cardIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.item-card:hover { border-color: #d0e0d0; }
-
-.item-card.removed {
-  opacity: 0.4;
-  text-decoration: line-through;
-  background: #f8f2f2;
-  border-color: #e8d8d8;
-}
-
-.item-card .item-content {
-  display: flex; align-items: center; width: 100%;
-  position: relative; z-index: 2;
-  background: inherit;
-  transition: transform 0.25s ease;
-}
-
-.item-card .item-icon {
-  font-size: 24px; margin-right: 8px;
-  flex-shrink: 0; width: 28px; text-align: center;
-}
-
-.item-card .item-info {
-  flex: 1; min-width: 0;
-}
-
-.item-card .item-name {
-  font-weight: 600; font-size: 13px; color: #222;
-  text-transform: capitalize;
-}
-
-.item-card .item-detail {
-  font-size: 11px; color: #888; margin-top: 1px;
-}
-
-.item-card .item-actions {
-  display: flex; gap: 2px; flex-shrink: 0; margin-left: 4px;
-}
-
-.item-card .item-btn {
-  background: none; border: none;
-  width: 28px; height: 28px;
-  border-radius: 8px;
-  font-size: 13px; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
   transition: all 0.2s;
-  color: #aaa;
+  touch-action: pan-y;
+  will-change: transform;
+}
+@keyframes cardIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+.item-card.just-added { animation: cardIn 0.25s ease-out; }
+.item-card.leaving { opacity: 0; transform: translateX(30px); }
+.item-card .item-icon { font-size: 22px; width: 26px; text-align: center; flex-shrink: 0; }
+.item-info { flex: 1; min-width: 0; }
+.item-name-row { display: flex; align-items: center; gap: 4px; min-width: 0; }
+.item-name { font-weight: 600; font-size: 13px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fav-btn {
+  background: none; border: none; cursor: pointer;
+  font-size: 15px; line-height: 1; padding: 0 2px; flex-shrink: 0;
+  color: #c9d3c9; transition: transform 0.15s, color 0.15s;
+}
+.fav-btn:active { transform: scale(1.3); }
+.fav-btn.on { color: #f5b301; }
+.item-note { font-size: 11px; color: var(--muted); margin-top: 1px; line-height: 1.35; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.item-note .note-label { color: var(--green-2); font-weight: 600; }
+.item-check {
+  width: 21px; height: 21px; flex-shrink: 0; cursor: pointer;
+  accent-color: var(--green-2);
+}
+.item-card.purchased { opacity: 0.6; background: #f0f4f0; border-color: #e4ece4; }
+.item-card.purchased .item-name { text-decoration: line-through; color: var(--muted); }
+.item-card.purchased .item-icon, .item-card.purchased .step-val { filter: grayscale(0.4); }
+.item-card.swiping { transition: none; }
+.item-card.swipe-hint { background: #fdeceb; }
+
+.stepper { display: flex; align-items: center; gap: 2px; flex-shrink: 0; }
+.step-btn {
+  width: 30px; height: 30px;
+  border: none; border-radius: 9px;
+  background: var(--green-soft);
+  color: var(--green);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+}
+.step-btn:active { transform: scale(0.9); background: #dcecdc; }
+.step-btn:disabled { opacity: 0.35; pointer-events: none; }
+.step-btn svg { width: 15px; height: 15px; }
+.step-val {
+  min-width: 58px; text-align: center;
+  font-size: 12.5px; font-weight: 700; color: var(--green);
+}
+.step-val.pulse { animation: pulse 0.3s; }
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.25); }
+  100% { transform: scale(1); }
 }
 
-.item-card .item-btn:hover { background: #eef3ee; }
-.item-card .item-btn.edit-btn:hover { color: #3ca34e; }
-.item-card .item-btn.del-btn:hover { color: #e74c3c; }
-.item-card .item-btn.restore-btn:hover { color: #3ca34e; }
-
-.empty-state {
-  text-align: center; padding: 20px 16px; color: #bbb;
+.item-actions { display: flex; gap: 2px; flex-shrink: 0; }
+.item-btn {
+  background: none; border: none;
+  width: 30px; height: 30px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+  color: #b3bdb3;
 }
+.item-btn svg { width: 16px; height: 16px; }
+.item-btn:active { transform: scale(0.9); }
+.item-btn.edit-btn:hover { color: var(--green); background: var(--green-soft); }
+.item-btn.del-btn:hover { color: var(--red); background: #fdeceb; }
 
-.empty-state .icon { font-size: 36px; margin-bottom: 6px; }
+.empty-state { text-align: center; padding: 26px 16px; color: #b6c0b6; }
+.empty-state .icon { font-size: 38px; margin-bottom: 6px; }
+.empty-state p { font-size: 13px; font-weight: 600; }
+.empty-state .hint { font-size: 11px; font-weight: 400; margin-top: 2px; color: #c3ccc3; }
 
-.empty-state p { font-size: 13px; }
+/* ---- Saved lists / monthly ---- */
+.monthly-section {
+  background: #fff; border-radius: var(--radius); box-shadow: var(--shadow);
+  padding: 12px; margin-bottom: 10px;
+}
+.ms-title { font-size: 11px; font-weight: 700; color: var(--green); margin-bottom: 8px; letter-spacing: 0.4px; }
+.ms-buttons { display: flex; gap: 6px; }
+.ms-btn {
+  flex: 1;
+  background: var(--green-soft);
+  border: 1px solid var(--green-line);
+  border-radius: 11px;
+  padding: 10px 4px;
+  font-size: 11px; font-weight: 700; color: var(--green);
+  cursor: pointer;
+  font-family: inherit;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  transition: all 0.15s;
+}
+.ms-btn:active { transform: scale(0.95); background: #e0f0e0; }
+.ms-btn .ms-ico { font-size: 18px; }
+
+.saved-list-card {
+  background: #f9fbf9;
+  border: 1px solid var(--green-line);
+  border-radius: 13px;
+  padding: 11px 12px;
+  margin-bottom: 9px;
+  transition: all 0.15s;
+}
+.list-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; gap: 6px; }
+.list-name { font-weight: 700; font-size: 14px; color: var(--text); display: flex; align-items: center; gap: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.badge { flex-shrink: 0; background: var(--green-soft); color: var(--green); font-size: 11px; font-weight: 700; border-radius: 999px; padding: 3px 9px; }
+.list-meta { font-size: 11px; color: var(--muted); margin-bottom: 8px; line-height: 1.6; }
+.saved-list-actions { display: flex; gap: 6px; }
+.saved-list-actions .btn { flex: 1; padding: 8px; font-size: 11.5px; }
+.saved-list-actions .btn-danger { flex: 0 0 auto; padding: 8px 10px; }
+.saved-list-actions .btn-danger svg { width: 14px; height: 14px; }
+
+/* ---- Profile ---- */
+.profile-card {
+  background: #fff; border-radius: var(--radius); box-shadow: var(--shadow);
+  padding: 12px; margin-bottom: 10px;
+}
+.pc-title { font-size: 11px; font-weight: 700; color: var(--green); letter-spacing: 0.4px; margin-bottom: 8px; display: flex; align-items: center; gap: 5px; }
+.lang-options { display: flex; gap: 6px; }
+.lang-option {
+  flex: 1;
+  border: 2px solid var(--green-line);
+  background: #fafcfa;
+  border-radius: 11px;
+  padding: 9px 4px;
+  font-size: 12.5px; font-weight: 700; color: var(--text);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+.lang-option.active { border-color: var(--green-2); background: var(--green-soft); color: var(--green); }
+.profile-row {
+  width: 100%;
+  display: flex; align-items: center; gap: 10px;
+  background: none; border: none; border-top: 1px solid #f0f3f0;
+  padding: 12px 4px;
+  font-size: 13.5px; font-weight: 600; color: var(--text);
+  cursor: pointer; text-align: left; font-family: inherit;
+}
+.profile-row:first-of-type { border-top: none; }
+.profile-row .pr-icon { font-size: 18px; width: 24px; text-align: center; }
+.profile-row:active { background: #f7faf7; }
+.profile-note { font-size: 12px; color: var(--muted); line-height: 1.55; }
+
+/* ---- Bottom navigation ---- */
+.bottom-nav {
+  flex-shrink: 0;
+  display: flex;
+  background: #fff;
+  border-top: 1px solid var(--green-line);
+  box-shadow: 0 -2px 12px rgba(20,60,30,0.06);
+  padding: 5px 6px calc(5px + env(safe-area-inset-bottom));
+  z-index: 6;
+}
+.nav-btn {
+  flex: 1;
+  background: none; border: none; cursor: pointer;
+  font-family: inherit;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 4px 2px;
+  border-radius: 12px;
+  color: #98a598;
+  transition: all 0.15s;
+}
+.nav-btn .nb-icon { font-size: 20px; line-height: 1; }
+.nav-btn .nb-label { font-size: 10.5px; font-weight: 600; }
+.nav-btn.active { color: var(--green); }
+.nav-btn.active .nb-icon { transform: scale(1.06); }
+.nav-btn:active { transform: scale(0.96); }
 
 /* ---- Modals ---- */
 .modal-overlay {
   display: none;
   position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0,0,0,0.4);
+  background: rgba(10,30,15,0.45);
   z-index: 100;
   justify-content: center; align-items: center;
   padding: 16px;
-  animation: fadeIn 0.2s;
-  backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px);
+  animation: fadeIn 0.18s;
+  backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px);
 }
-
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
 .modal-overlay.active { display: flex; }
-
 .modal {
   background: white;
   border-radius: 18px;
-  padding: 20px;
+  padding: 18px;
   max-width: 480px;
   width: 100%;
-  max-height: 85vh;
+  max-height: 86vh;
   overflow-y: auto;
-  box-shadow: 0 10px 50px rgba(0,0,0,0.2);
-  animation: modalIn 0.25s ease-out;
+  box-shadow: 0 12px 50px rgba(0,0,0,0.22);
+  animation: modalIn 0.22s ease-out;
 }
-
 @keyframes modalIn {
-  from { transform: scale(0.92) translateY(10px); opacity: 0; }
+  from { transform: scale(0.94) translateY(10px); opacity: 0; }
   to { transform: scale(1) translateY(0); opacity: 1; }
 }
-
-.modal-header {
-  display: flex; justify-content: space-between; align-items: center;
-  margin-bottom: 14px;
-}
-
-.modal-header h2 {
-  font-size: 17px; color: #333;
-  display: flex; align-items: center; gap: 6px;
-}
-
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.modal-header h2 { font-size: 16px; color: var(--text); display: flex; align-items: center; gap: 6px; }
 .modal-close {
   background: none; border: none;
-  font-size: 22px; cursor: pointer; color: #aaa;
-  padding: 4px; width: 34px; height: 34px;
+  font-size: 20px; cursor: pointer; color: #aab4aa;
+  width: 32px; height: 32px;
   display: flex; align-items: center; justify-content: center;
   border-radius: 50%;
-  transition: all 0.2s;
+  transition: all 0.15s;
 }
-
-.modal-close:hover { background: #f0f0f0; color: #333; }
+.modal-close:hover { background: #f0f0f0; color: var(--text); }
 
 .modal .form-group { margin-bottom: 10px; }
-
 .modal .form-group label {
   display: block;
-  font-size: 11px; font-weight: 600; color: #777;
-  margin-bottom: 3px; text-transform: uppercase; letter-spacing: 0.3px;
+  font-size: 11px; font-weight: 600; color: var(--muted);
+  margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.3px;
 }
-
 .modal .form-group input, .modal .form-group select {
   width: 100%;
   padding: 9px 10px;
-  border: 2px solid #e0e8e0;
+  border: 2px solid var(--green-line);
   border-radius: 10px;
   font-size: 14px;
   background: #fafcfa;
   transition: border-color 0.2s;
-  -webkit-appearance: none;
-  appearance: none;
+  -webkit-appearance: none; appearance: none;
   font-family: inherit;
 }
-
-.modal .form-group input:focus, .modal .form-group select:focus {
-  outline: none; border-color: #3ca34e;
-}
-
+.modal .form-group input:focus, .modal .form-group select:focus { outline: none; border-color: var(--green-2); }
 .modal .form-group select {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%23777' d='M5 6L0 0h10z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 10px center;
+  background-repeat: no-repeat; background-position: right 10px center;
   padding-right: 26px;
 }
-
-.modal .modal-actions {
-  display: flex; gap: 8px; margin-top: 14px;
-}
+.modal .modal-actions { display: flex; gap: 8px; margin-top: 12px; }
 
 .btn {
-  padding: 9px 16px; border: none; border-radius: 10px;
+  padding: 9px 14px; border: none; border-radius: 10px;
   font-size: 13px; font-weight: 600; cursor: pointer;
   display: inline-flex; align-items: center; gap: 5px;
-  transition: all 0.2s;
+  justify-content: center;
+  transition: all 0.15s;
   font-family: inherit;
 }
-
-.btn-primary {
-  background: #3ca34e; color: white;
-  box-shadow: 0 2px 8px rgba(60,163,78,0.3);
-}
-
-.btn-primary:hover { background: #2d7a3a; transform: translateY(-1px); }
-.btn-primary:active { transform: scale(0.96); }
-
-.btn-danger {
-  background: #e74c3c; color: white;
-}
-
+.btn:active { transform: scale(0.96); }
+.btn-primary { background: var(--green-2); color: white; box-shadow: 0 2px 8px rgba(60,163,78,0.3); }
+.btn-primary:hover { background: var(--green); }
+.btn-secondary { background: #eef3ee; color: #3d4a3d; }
+.btn-secondary:hover { background: #dfe9df; }
+.btn-danger { background: var(--red); color: white; }
 .btn-danger:hover { background: #c0392b; }
+.modal .modal-actions .btn { flex: 1; padding: 10px; }
 
-.btn-secondary {
-  background: #ecf0ec; color: #444;
+/* ---- Quick add sheet ---- */
+.qa-sheet { text-align: center; }
+.qa-icon { font-size: 44px; margin: 4px 0 6px; }
+.qa-name { font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 12px; }
+.qa-subtabs { display: flex; gap: 4px; margin-bottom: 10px; background: #f0f5f0; border-radius: 11px; padding: 3px; }
+.qa-subtab {
+  flex: 1;
+  border: none; background: transparent; color: var(--muted);
+  border-radius: 9px; padding: 8px 4px;
+  font-size: 13px; font-weight: 700; cursor: pointer;
+  font-family: inherit; transition: all 0.15s;
 }
+.qa-subtab.active { background: #fff; color: var(--green); box-shadow: 0 1px 5px rgba(20,60,30,0.1); }
+.qa-subtab:active { transform: scale(0.96); }
+.qa-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 4px; }
+.qa-step {
+  background: var(--green-soft);
+  border: 1px solid var(--green-line);
+  border-radius: 12px;
+  padding: 14px 6px;
+  font-size: 15px; font-weight: 700; color: var(--green);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+.qa-step:active { transform: scale(0.94); background: #e0f0e0; }
 
-.btn-secondary:hover { background: #dce4dc; }
+/* ---- Merge choice ---- */
+.mch-msg { font-size: 13px; color: #555; line-height: 1.5; margin-bottom: 10px; text-align: center; white-space: pre-line; }
 
-.modal .modal-actions .btn { flex: 1; justify-content: center; padding: 10px; }
-
-/* ---- Saved List Cards ---- */
-.saved-list-card {
+/* ---- Manage master ---- */
+.manage-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px;
+  border: 1px solid var(--green-line);
+  border-radius: 11px;
   background: #f9fbf9;
-  border: 1px solid #eef3ee;
-  border-radius: 14px;
-  padding: 14px;
-  margin-bottom: 10px;
-  transition: all 0.2s;
+  margin-bottom: 6px;
 }
-
-.saved-list-card:hover { border-color: #d0e0d0; }
-
-.saved-list-card .list-header {
-  display: flex; justify-content: space-between; align-items: center;
-  margin-bottom: 4px;
+.manage-row .m-icon { font-size: 20px; width: 26px; text-align: center; }
+.manage-row .m-name { flex: 1; font-size: 13px; font-weight: 600; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.add-custom-btn {
+  margin-top: 10px;
+  width: 100%;
+  background: var(--green-soft);
+  border: 1px solid var(--green-line);
+  border-radius: 11px;
+  padding: 10px;
+  font-size: 13px; font-weight: 700; color: var(--green);
+  cursor: pointer;
+  font-family: inherit;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
 }
+.add-custom-btn:active { transform: scale(0.97); }
 
-.saved-list-card .list-name {
-  font-weight: 600; font-size: 14px; color: #333;
-  display: flex; align-items: center; gap: 5px;
+/* ---- Custom item steps ---- */
+.step-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.step-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: var(--green-soft);
+  border: 1px solid var(--green-line);
+  border-radius: 999px;
+  padding: 5px 10px;
+  font-size: 12px; font-weight: 600; color: var(--green);
 }
+.step-chip button {
+  border: none; background: none; color: var(--red);
+  font-size: 14px; cursor: pointer; display: flex; align-items: center;
+  padding: 0;
+}
+.add-step-row { display: flex; gap: 6px; margin-top: 8px; }
+.add-step-row input { flex: 1; }
+.add-step-row .btn { flex: 0 0 auto; }
 
-.saved-list-card .list-timestamp {
-  font-size: 11px; color: #999;
+/* ---- Icon picker ---- */
+.icon-picker { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+.icon-pick {
+  width: 36px; height: 36px; font-size: 19px; line-height: 1;
+  border: 1px solid var(--green-line); background: #fafcfa;
+  border-radius: 10px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
 }
+.icon-pick:active { transform: scale(0.9); background: var(--green-soft); }
+.icon-pick.selected { border-color: var(--green-2); background: var(--green-soft); box-shadow: 0 0 0 2px rgba(60,163,78,0.15); }
 
-.saved-list-card .list-item-count {
-  font-size: 12px; color: #777; margin-bottom: 8px;
-}
-
-.saved-list-actions {
-  display: flex; gap: 6px;
-}
-
-.saved-list-actions .btn {
-  padding: 7px 12px; font-size: 12px; flex: 1; justify-content: center;
-}
+/* ---- Confirm modal ---- */
+.confirm-msg { font-size: 13.5px; color: #444; line-height: 1.5; text-align: center; margin: 4px 0 2px; }
 
 /* ---- Toast ---- */
 .toast {
-  position: fixed; bottom: 24px; left: 50%;
-  transform: translateX(-50%) translateY(80px);
-  background: #333; color: white;
-  padding: 10px 20px;
+  position: fixed; bottom: 84px; left: 50%;
+  transform: translateX(-50%) translateY(90px);
+  background: #26362a; color: white;
+  padding: 10px 18px;
   border-radius: 12px;
   font-size: 13px; font-weight: 500;
   z-index: 200;
   opacity: 0;
-  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   pointer-events: none;
   white-space: nowrap;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 18px rgba(0,0,0,0.25);
+  max-width: 92vw;
+  overflow: hidden; text-overflow: ellipsis;
 }
-
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-/* Scrollbar */
-.modal::-webkit-scrollbar { width: 4px; }
-.modal::-webkit-scrollbar-track { background: transparent; }
-.modal::-webkit-scrollbar-thumb { background: #ddd; border-radius: 3px; }
+.modal::-webkit-scrollbar, .master-area::-webkit-scrollbar, .cart-panel::-webkit-scrollbar { width: 4px; }
+.modal::-webkit-scrollbar-thumb, .master-area::-webkit-scrollbar-thumb, .cart-panel::-webkit-scrollbar-thumb { background: #ddd; border-radius: 3px; }
 
-@media (max-width: 480px) {
-  .app-container { padding: 0 8px 70px; }
-  header { padding: 8px 12px; }
-  header h1 { font-size: 16px; }
-  header h1 span { font-size: 18px; }
-  .icon-btn { width: 32px; height: 32px; font-size: 15px; }
-  .input-section { padding: 8px 10px; }
-  .input-group input, .input-group select { padding: 7px 8px; font-size: 12px; }
-  .input-group-qty { max-width: 54px; }
-  .items-section { padding: 10px; }
-  .item-card { padding: 7px 8px; }
-  .item-card .item-icon { font-size: 20px; width: 24px; }
-  .item-card .item-name { font-size: 12px; }
-  .item-card .item-detail { font-size: 10px; }
-  .modal { padding: 16px; }
-  .saved-list-card { padding: 12px; }
+/* ---- Toast with undo ---- */
+#toast { display: flex; align-items: center; gap: 10px; white-space: normal; }
+#toastMsg { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.toast-undo {
+  flex-shrink: 0;
+  background: rgba(255,255,255,0.22); border: none; color: #fff;
+  border-radius: 8px; padding: 5px 11px; font-size: 12px; font-weight: 700;
+  cursor: pointer; font-family: inherit;
+}
+.toast-undo:active { transform: scale(0.94); }
+
+/* ---- Floating add button ---- */
+.fab {
+  position: fixed; right: 16px; bottom: calc(78px + env(safe-area-inset-bottom));
+  width: 54px; height: 54px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--green-2), var(--green));
+  color: #fff; border: none;
+  box-shadow: 0 4px 16px rgba(45,122,58,0.4);
+  font-size: 26px; line-height: 1; cursor: pointer; z-index: 50;
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.15s;
+}
+.fab:active { transform: scale(0.9); }
+body.dark .fab { box-shadow: 0 4px 16px rgba(0,0,0,0.5); }
+
+/* ---- Saved list actions ---- */
+.sla-row { display: flex; gap: 5px; margin-top: 8px; }
+.sla-icon-btn {
+  flex: 1; min-width: 0; display: flex; align-items: center; justify-content: center; gap: 3px;
+  background: var(--green-soft); border: 1px solid var(--green-line); color: var(--green);
+  border-radius: 10px; padding: 9px 3px; font-size: 11px; font-weight: 700;
+  cursor: pointer; font-family: inherit; transition: all 0.15s;
+}
+.sla-icon-btn span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sla-icon-btn:active { transform: scale(0.95); background: #e0f0e0; }
+.sla-icon-btn.danger { flex: 0 0 auto; color: var(--red); }
+.sla-icon-btn.danger:active { background: #fdeceb; }
+.sla-icon-btn svg { width: 14px; height: 14px; }
+
+/* ---- Stats ---- */
+.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+.stat-box { background: #f9fbf9; border: 1px solid var(--green-line); border-radius: 12px; padding: 10px; min-width: 0; }
+.stat-box .sb-label { font-size: 10.5px; font-weight: 700; color: var(--muted); letter-spacing: 0.3px; margin-bottom: 6px; display: flex; align-items: center; gap: 4px; }
+.stat-row { display: flex; justify-content: space-between; align-items: center; gap: 6px; font-size: 12.5px; padding: 2px 0; }
+.stat-row .sr-k { display: flex; align-items: center; gap: 4px; min-width: 0; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.stat-row .sr-v { color: var(--green); font-weight: 700; flex-shrink: 0; }
+.stats-note { font-size: 11px; color: var(--muted); text-align: center; margin-top: 8px; line-height: 1.5; }
+.stat-pill { display: inline-flex; align-items: center; gap: 4px; background: var(--green-soft); border: 1px solid var(--green-line); color: var(--green); border-radius: 999px; padding: 2px 8px; font-size: 11px; font-weight: 700; }
+
+/* ---- Scanner modal ---- */
+.scanner-box { position: relative; width: 100%; max-width: 300px; margin: 4px auto 0; border-radius: 14px; overflow: hidden; background: #000; aspect-ratio: 3 / 4; }
+.scanner-box video { width: 100%; height: 100%; object-fit: cover; }
+.scan-frame { position: absolute; inset: 0; border: 3px solid rgba(60,163,78,0.85); border-radius: 14px; }
+.scan-frame::after {
+  content: ''; position: absolute; left: 8%; right: 8%; top: 0; height: 2px;
+  background: rgba(60,163,78,0.9); animation: scanMove 2.2s linear infinite;
+}
+@keyframes scanMove { 0% { top: 6%; } 50% { top: 90%; } 100% { top: 6%; } }
+.scan-hint { text-align: center; font-size: 12px; color: var(--muted); margin-top: 8px; }
+.scan-result { text-align: center; font-size: 15px; font-weight: 700; color: var(--green); margin-top: 6px; min-height: 18px; }
+.scan-close {
+  position: absolute; top: 8px; right: 8px; z-index: 5;
+  background: rgba(0,0,0,0.55); color: #fff; border: none; border-radius: 50%;
+  width: 30px; height: 30px; font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
 }
 
-@media (min-width: 481px) {
-  .input-row { flex-wrap: nowrap; }
+/* ---- Toggle rows in profile ---- */
+.toggle-row { display: flex; align-items: center; gap: 10px; border-top: 1px solid #f0f3f0; padding: 12px 4px; }
+.toggle-row .tr-label { flex: 1; font-size: 13.5px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 10px; }
+.toggle-row .tr-ico { font-size: 18px; width: 24px; text-align: center; }
+.switch { position: relative; width: 44px; height: 24px; flex-shrink: 0; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.switch .slider {
+  position: absolute; inset: 0; cursor: pointer; border-radius: 999px;
+  background: #d5ded5; transition: all 0.2s;
+}
+.switch .slider::before {
+  content: ''; position: absolute; height: 18px; width: 18px; left: 3px; top: 3px;
+  border-radius: 50%; background: #fff; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+}
+.switch input:checked + .slider { background: var(--green-2); }
+.switch input:checked + .slider::before { transform: translateX(20px); }
+
+/* ---- Manage rows grouped by category ---- */
+.manage-cat { font-size: 11px; font-weight: 800; color: var(--green); letter-spacing: 0.4px; margin: 12px 2px 6px; display: flex; align-items: center; gap: 5px; }
+
+/* ---- Dark mode ---- */
+body.dark {
+  --green-bg: #0e160f;
+  --green-soft: #1c2b1d;
+  --green-line: #223422;
+  --text: #e9f1e9;
+  --muted: #93a793;
+  --green: #4fae61;
+  --green-2: #57bd69;
+  background: var(--green-bg);
+}
+body.dark header { background: linear-gradient(135deg, #2f6b3a, #1d4a26); }
+body.dark .cart-panel, body.dark .total-bar, body.dark .monthly-section, body.dark .profile-card,
+body.dark .cat-header, body.dark .master-tile, body.dark .continue-banner { background: #16241a; border-color: #223428; }
+body.dark .item-card { background: #1a2a1f; border-color: #243728; }
+body.dark .item-card.purchased { background: #16201a; border-color: #1f2c22; }
+body.dark .saved-list-card, body.dark .manage-row, body.dark .stat-box { background: #1a2a1f; border-color: #223328; }
+body.dark .search-box input, body.dark .modal, body.dark .modal .form-group input, body.dark .modal .form-group select,
+body.dark #noteText { background: #1a2a1f; border-color: #2a3f2e; color: #e9f1e9; }
+body.dark .search-box input::placeholder { color: #5f745f; }
+body.dark .bottom-nav { background: #141f17; border-color: #1f3020; }
+body.dark .step-btn { background: #223a28; color: #7ec78c; }
+body.dark .qa-step, body.dark .lang-option, body.dark .sbtn, body.dark .search-box .clear-btn { background: #1c2b1c; border-color: #2a3f2e; color: #b9cfb9; }
+body.dark .empty-state p, body.dark .no-result { color: #5f745f; }
+body.dark .empty-state .hint { color: #445644; }
+body.dark .btn-secondary { background: #2a3a2c; color: #d8e8d8; }
+body.dark .icon-pick { background: #1a2a1f; border-color: #2a3f2e; }
+body.dark .cat-count, body.dark .stat-pill { background: #223a28; }
+body.dark .master-tile .mt-name { color: #e9f1e9; }
+body.dark .profile-row { border-color: #20301f; }
+body.dark .profile-row:active, body.dark .toggle-row { background: #16241a; }
+body.dark .modal-close:hover { background: #2a3a2c; }
+body.dark .sla-icon-btn { background: #1c2b1c; border-color: #2a3f2e; }
+body.dark .switch .slider { background: #3a4a3a; }
+body.dark .ms-btn, body.dark .add-custom-btn { background: #1c2b1c; border-color: #2a3f2e; color: #7ec78c; }
+body.dark .manage-cat { color: #7ec78c; }
+
+@media (max-width: 400px) {
+  .view { padding: 8px; }
+  .master-grid { grid-template-columns: repeat(4, 1fr); }
+  .ms-btn { font-size: 10px; }
+  .item-name { font-size: 12px; }
+  .step-val { min-width: 50px; font-size: 11.5px; }
 }
 </style>
 </head>
@@ -494,124 +766,639 @@ header h1 span { font-size: 20px; }
 
 <div class="bg-items" id="bgItems"></div>
 
-<div class="app-container">
+<div class="app-shell">
   <header>
     <div class="header-top">
-      <h1><span>🛒</span> Grocery Marking</h1>
-      <div class="header-actions">
-        <button class="icon-btn" onclick="shareWhatsApp()" title="Share on WhatsApp">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="white">
+      <h1 id="headerTitle"><span>🛒</span> Grocery Marking</h1>
+      <div class="header-actions" id="headerActions">
+        <button class="hbtn" onclick="shareWhatsApp()" title="Share on WhatsApp">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="white">
             <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-1.096-1.01-1.836-2.255-2.048-2.637-.213-.382-.024-.589.157-.78.164-.164.36-.428.54-.642.183-.214.245-.367.367-.61.122-.243.061-.456-.03-.637-.092-.181-.67-1.617-.918-2.214-.242-.58-.487-.48-.67-.49-.173-.01-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
             <path d="M12 0C5.373 0 0 5.373 0 12c0 2.126.552 4.125 1.514 5.853L.053 24l6.356-1.42A11.944 11.944 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/>
           </svg>
+          <span data-i18n="share">Share</span>
         </button>
-        <button class="icon-btn" onclick="showSavedLists()" title="Saved Lists">🕒</button>
-        <button class="icon-btn" onclick="saveCurrentList()" title="Save List">⬇️</button>
+        <button class="hbtn" onclick="saveCurrentList()" title="Save List">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="white">
+            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+          </svg>
+          <span data-i18n="save">Save</span>
+        </button>
       </div>
     </div>
   </header>
 
-  <!-- Compact always-visible input section -->
-  <div class="input-section">
-    <div class="input-row">
-      <div class="input-group input-group-item">
-        <input type="text" id="itemInput" placeholder="Item name..." autocomplete="off">
+  <main>
+    <!-- ================= HOME ================= -->
+    <section class="view active" id="view-home">
+      <div class="continue-banner" id="continueBanner" style="display:none">
+        <div class="cb-left">
+          <span class="cb-icon">📅</span>
+          <div>
+            <div class="cb-title" id="cbTitle">Continue last list</div>
+            <div class="cb-sub" id="cbSub"></div>
+          </div>
+        </div>
+        <button class="cb-btn" onclick="continueLastMonth()"><span data-i18n="continue">Continue</span></button>
       </div>
-      <div class="input-group input-group-qty">
-        <input type="number" id="qtyInput" value="1" min="1" step="1">
-      </div>
-    </div>
-    <div class="input-row">
-      <div class="input-group input-group-cat">
-        <select id="categorySelect" onchange="updateUnits()">
-          <option value="fruits">Fruits</option>
-          <option value="vegetables">Vegetables</option>
-          <option value="grains">Rice/Grains</option>
-          <option value="liquids">Liquids</option>
-          <option value="packaged">Packaged</option>
-        </select>
-      </div>
-      <div class="input-group input-group-unit">
-        <select id="unitSelect"></select>
-      </div>
-      <button class="add-item-btn" onclick="addItem()" title="Add Item">➕</button>
-      <button class="reset-btn" onclick="resetCart()" title="Reset Cart">🗑</button>
-    </div>
-  </div>
 
-  <div class="total-bar">
-    <span class="label">📦 Total Items</span>
-    <span class="count" id="totalCount">0</span>
-  </div>
+      <div class="add-panel">
+        <div class="search-box">
+          <span class="s-icon">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+          </span>
+          <input type="text" id="searchInput" placeholder="Search item…" autocomplete="off">
+          <button class="sbtn" id="scanBtn" onclick="openScanner()" title="Scan barcode">
+            <svg class="sbtn-svg" viewBox="0 0 24 24" fill="currentColor"><path d="M4 4h5v2H6v3H4V4zm16 0v5h-2V6h-3V4h5zM4 20v-5h2v3h3v2H4zm16 0h-5v-2h3v-3h2v5zM7 11h10v2H7z"/></svg>
+          </button>
+          <button class="sbtn" id="micBtn" onclick="startVoice()" title="Voice search">
+            <svg class="sbtn-svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 14a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v5a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z"/></svg>
+          </button>
+          <button class="clear-btn" id="clearSearch" title="Clear">&times;</button>
+        </div>
+        <div class="master-area" id="masterGrid"></div>
+      </div>
 
-  <div class="items-section">
-    <ul class="items-list" id="itemsList">
-      <li class="empty-state">
-        <div class="icon">🛒</div>
-        <p>No items added yet. Start adding your groceries!</p>
-      </li>
-    </ul>
+      <div class="total-bar">
+        <span class="label">📦 <span data-i18n="totalItems">Total Items</span></span>
+        <span class="count" id="totalCount">0</span>
+      </div>
+
+      <div class="cart-panel">
+        <ul class="items-list" id="itemsList"></ul>
+      </div>
+    </section>
+
+    <!-- ================= SAVED LISTS ================= -->
+    <section class="view" id="view-saved">
+      <div class="monthly-section">
+        <div class="ms-title">📅 <span data-i18n="monthlyTitle">MONTHLY SHOPPING</span></div>
+        <div class="ms-buttons">
+          <button class="ms-btn" onclick="continueLastMonth()"><span class="ms-ico">▶️</span><span data-i18n="continueLastMonth">Continue Last Month</span></button>
+          <button class="ms-btn" onclick="copyPreviousList()"><span class="ms-ico">📋</span><span data-i18n="copyPreviousMonth">Copy Previous Month</span></button>
+          <button class="ms-btn" onclick="startNewList()"><span class="ms-ico">🆕</span><span data-i18n="startNewList">Start New List</span></button>
+        </div>
+      </div>
+      <div id="savedListsContent"></div>
+    </section>
+
+    <!-- ================= PROFILE ================= -->
+    <section class="view" id="view-profile">
+      <div class="profile-card">
+        <div class="pc-title">🌐 <span data-i18n="language">LANGUAGE</span></div>
+        <div class="lang-options">
+          <button class="lang-option" data-lang="en" onclick="setLang('en')">English</button>
+          <button class="lang-option" data-lang="te" onclick="setLang('te')">తెలుగు</button>
+          <button class="lang-option" data-lang="hi" onclick="setLang('hi')">हिन्दी</button>
+        </div>
+      </div>
+
+      <div class="profile-card">
+        <div class="pc-title">⚙️ <span data-i18n="settings">SETTINGS</span></div>
+        <div class="toggle-row">
+          <span class="tr-ico">🌙</span>
+          <span class="tr-label"><span data-i18n="darkMode">Dark Mode</span></span>
+          <label class="switch">
+            <input type="checkbox" id="darkToggle" onchange="toggleDark(this.checked)">
+            <span class="slider"></span>
+          </label>
+        </div>
+        <button class="profile-row" id="installRow" style="display:none" onclick="installApp()"><span class="pr-icon">📲</span><span data-i18n="installApp">Install App on Phone</span></button>
+        <button class="profile-row" onclick="openMasterModal()"><span class="pr-icon">📖</span><span data-i18n="manageMasterList">Manage Master List</span></button>
+        <button class="profile-row" onclick="resetMaster()"><span class="pr-icon">♻️</span><span data-i18n="resetMaster">Reset Master List</span></button>
+        <button class="profile-row" onclick="resetQuantities()"><span class="pr-icon">🔢</span><span data-i18n="resetQuantities">Reset Quantities</span></button>
+        <button class="profile-row" onclick="clearPurchased()"><span class="pr-icon">✅</span><span data-i18n="clearPurchased">Clear Purchased Items</span></button>
+        <button class="profile-row" onclick="startNewList()"><span class="pr-icon">🗒️</span><span data-i18n="resetList">Reset Entire List</span></button>
+        <button class="profile-row" onclick="clearAllData()"><span class="pr-icon">🗑️</span><span data-i18n="clearAllData">Clear All Data</span></button>
+      </div>
+
+      <div class="profile-card">
+        <div class="pc-title">📊 <span data-i18n="statistics">STATISTICS</span></div>
+        <div id="statsContent"><p class="profile-note"><span data-i18n="loadingStats">Calculating…</span></p></div>
+      </div>
+
+      <div class="profile-card">
+        <div class="pc-title">📊 <span data-i18n="futureTrends">FUTURE CONSUMPTION TRENDS</span></div>
+        <p class="profile-note" id="trendsNote"></p>
+      </div>
+
+      <div class="profile-card">
+        <div class="pc-title">ℹ️ <span data-i18n="aboutApp">ABOUT APP</span></div>
+        <p class="profile-note" id="aboutText"></p>
+      </div>
+    </section>
+  </main>
+
+  <nav class="bottom-nav">
+    <button class="nav-btn active" data-view="home" onclick="switchView('home')">
+      <span class="nb-icon">🏠</span><span class="nb-label" data-i18n="home">Home</span>
+    </button>
+    <button class="nav-btn" data-view="saved" onclick="switchView('saved')">
+      <span class="nb-icon">🕒</span><span class="nb-label" data-i18n="savedLists">Saved Lists</span>
+    </button>
+    <button class="nav-btn" data-view="profile" onclick="switchView('profile')">
+      <span class="nb-icon">👤</span><span class="nb-label" data-i18n="myProfile">My Profile</span>
+    </button>
+  </nav>
+</div>
+
+<button class="fab" id="fabAdd" onclick="openCustomModal()" title="Add item">➕</button>
+
+<!-- Quick Add Sheet -->
+<div class="modal-overlay" id="quickAddModal">
+  <div class="modal qa-sheet">
+    <div class="modal-header">
+      <h2>➕ <span data-i18n="quickAdd">Quick Add</span></h2>
+      <button class="modal-close" onclick="closeModal('quickAddModal')">&times;</button>
+    </div>
+    <div class="qa-icon" id="qaIcon">🍚</div>
+    <div class="qa-name" id="qaName"></div>
+    <div class="qa-subtabs" id="qaSubTabs" style="display:none"></div>
+    <div class="qa-steps" id="qaSteps"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('quickAddModal')"><span data-i18n="cancel">Cancel</span></button>
+    </div>
   </div>
 </div>
 
-<div class="modal-overlay" id="savedListsModal">
+<!-- Merge choice Modal -->
+<div class="modal-overlay" id="mergeChoiceModal">
   <div class="modal">
     <div class="modal-header">
-      <h2>🕒 Saved Lists</h2>
-      <button class="modal-close" onclick="closeSavedLists()">&times;</button>
+      <h2>🛒 <span data-i18n="mergeTitle">Add to Current Cart</span></h2>
+      <button class="modal-close" onclick="closeModal('mergeChoiceModal')">&times;</button>
     </div>
-    <div id="savedListsContent"></div>
+    <p class="mch-msg" id="mchMsg"></p>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="mergeChoice('merge')">🛒 <span data-i18n="mergeWithCart">Merge with Current Cart</span></button>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="mergeChoice('replace')">🔄 <span data-i18n="replaceCart">Replace Cart</span></button>
+      <button class="btn btn-secondary" onclick="closeModal('mergeChoiceModal')"><span data-i18n="cancel">Cancel</span></button>
+    </div>
   </div>
 </div>
 
+<!-- Edit Item Modal -->
 <div class="modal-overlay" id="editModal">
   <div class="modal">
     <form id="editForm" onsubmit="saveEditedItem(event)">
       <div class="modal-header">
-        <h2>✏ Edit Item</h2>
-        <button type="button" class="modal-close" onclick="closeEditModal()">&times;</button>
+        <h2>✏️ <span data-i18n="editItem">Edit Item</span></h2>
+        <button type="button" class="modal-close" onclick="closeModal('editModal')">&times;</button>
       </div>
       <input type="hidden" id="editItemId">
       <div class="form-group">
-        <label>Item Name</label>
+        <label data-i18n="itemName">Item Name</label>
         <input type="text" id="editName" required>
       </div>
       <div class="form-group">
-        <label>Quantity</label>
-        <input type="number" id="editQty" min="1" step="1" required>
+        <label data-i18n="quantity">Quantity</label>
+        <input type="number" id="editQty" min="1" step="any" required>
       </div>
       <div class="form-group">
-        <label>Category</label>
-        <select id="editCategory" onchange="updateEditUnits()">
-          <option value="fruits">Fruits</option>
-          <option value="vegetables">Vegetables</option>
-          <option value="grains">Rice/Grains</option>
-          <option value="liquids">Liquids</option>
-          <option value="packaged">Packaged</option>
+        <label data-i18n="unit">Unit</label>
+        <select id="editUnit">
+          <option>Kg</option><option>g</option><option>L</option>
+          <option>ml</option><option>Pc</option><option>Piece</option><option>Dozen</option>
+          <option>Pack</option><option>Packet</option><option>Bunch</option>
+          <option>Bottle</option><option>Sachet</option><option>Tube</option>
         </select>
       </div>
-      <div class="form-group">
-        <label>Unit</label>
-        <select id="editUnit"></select>
-      </div>
       <div class="modal-actions">
-        <button type="submit" class="btn btn-primary">💾 Save</button>
-        <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+        <button type="submit" class="btn btn-primary">💾 <span data-i18n="save">Save</span></button>
+        <button type="button" class="btn btn-secondary" onclick="closeModal('editModal')"><span data-i18n="cancel">Cancel</span></button>
       </div>
     </form>
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<!-- Note Modal -->
+<div class="modal-overlay" id="noteModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>📝 <span data-i18n="note">Note</span></h2>
+      <button class="modal-close" onclick="closeModal('noteModal')">&times;</button>
+    </div>
+    <input type="hidden" id="noteItemId">
+    <div class="form-group">
+      <label data-i18n="noteForItem">Note for item</label>
+      <textarea id="noteText" rows="3" style="width:100%; padding:9px 10px; border:2px solid var(--green-line); border-radius:10px; font-size:14px; background:#fafcfa; font-family:inherit; color:var(--text); resize:none;" placeholder="e.g. 2 kg bag, blue pack…"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="saveNote()">💾 <span data-i18n="save">Save</span></button>
+      <button class="btn btn-secondary" onclick="clearNote()">🗑 <span data-i18n="removeNote">Remove Note</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- Barcode Scanner Modal -->
+<div class="modal-overlay" id="scannerModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>📷 <span data-i18n="scanBarcode">Scan Barcode</span></h2>
+      <button class="modal-close" onclick="stopScanner()">&times;</button>
+    </div>
+    <div class="scanner-box">
+      <button class="scan-close" onclick="stopScanner()" title="Close">&times;</button>
+      <video id="scannerVideo" autoplay muted playsinline></video>
+      <div class="scan-frame"></div>
+    </div>
+    <div class="scan-result" id="scanResult"></div>
+    <p class="scan-hint" id="scanHint"></p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('scannerModal'); stopScanner();"><span data-i18n="cancel">Cancel</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- Custom / Edit Master Item Modal -->
+<div class="modal-overlay" id="customModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="customModalTitle">➕ <span data-i18n="addCustomItem">Add Custom Item</span></h2>
+      <button class="modal-close" onclick="closeModal('customModal')">&times;</button>
+    </div>
+    <input type="hidden" id="customEditId">
+    <div class="form-group">
+      <label data-i18n="itemName">Item Name</label>
+      <input type="text" id="customName" placeholder="e.g. Detergent" autocomplete="off">
+    </div>
+    <div class="form-group">
+      <label data-i18n="icon">Icon (optional)</label>
+      <input type="text" id="customIcon" maxlength="8" placeholder="🛒" autocomplete="off">
+      <div class="icon-picker" id="iconPicker"></div>
+    </div>
+    <div class="form-group">
+      <label data-i18n="teluguName">Telugu Name (optional)</label>
+      <input type="text" id="customTelugu" placeholder="e.g. డిటర్జెంట్" autocomplete="off">
+    </div>
+    <div class="form-group">
+      <label data-i18n="hindiName">Hindi Name (optional)</label>
+      <input type="text" id="customHindi" placeholder="e.g. डिटर्जेंट" autocomplete="off">
+    </div>
+    <div class="form-group">
+      <label data-i18n="category">Category</label>
+      <select id="customCat"></select>
+    </div>
+    <div class="form-group">
+      <label data-i18n="quantitySteps">Quantity Steps</label>
+      <div class="add-step-row">
+        <input type="text" id="customStepInput" placeholder="e.g. 500 g" autocomplete="off">
+        <button type="button" class="btn btn-secondary" onclick="addCustomStep()">＋ <span data-i18n="add">Add</span></button>
+      </div>
+      <div class="step-chips" id="customSteps"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="saveCustomItem()">💾 <span data-i18n="save">Save</span></button>
+      <button class="btn btn-secondary" onclick="closeModal('customModal')"><span data-i18n="cancel">Cancel</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- Manage Master List Modal -->
+<div class="modal-overlay" id="manageModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>📖 <span data-i18n="manageMasterList">Manage Master List</span></h2>
+      <button class="modal-close" onclick="closeModal('manageModal')">&times;</button>
+    </div>
+    <div id="manageGrid"></div>
+    <button class="add-custom-btn" onclick="openCustomModal()">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+      <span data-i18n="addCustomItem">Add Custom Item</span>
+    </button>
+  </div>
+</div>
+
+<!-- Save List Modal -->
+<div class="modal-overlay" id="nameModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>⬇️ <span data-i18n="saveList" id="nameModalTitle">Save List</span></h2>
+      <button class="modal-close" onclick="closeModal('nameModal')">&times;</button>
+    </div>
+    <div class="form-group">
+      <label data-i18n="listName">List Name</label>
+      <input type="text" id="nameInput" autocomplete="off">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="confirmSaveList()">💾 <span data-i18n="save">Save</span></button>
+      <button class="btn btn-secondary" onclick="closeModal('nameModal')"><span data-i18n="cancel">Cancel</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Modal -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="confirmTitle">⚠️</h2>
+      <button class="modal-close" onclick="closeModal('confirmModal')">&times;</button>
+    </div>
+    <p class="confirm-msg" id="confirmMsg"></p>
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="confirmOk" onclick="confirmOk()">OK</button>
+      <button class="btn btn-secondary" onclick="closeModal('confirmModal')"><span data-i18n="cancel">Cancel</span></button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span id="toastMsg"></span><button class="toast-undo" id="toastUndo" style="display:none" onclick="toastUndo()"></button></div>
 
 <script>
-const CATEGORY_UNITS = {
-  fruits:     ['Pieces', 'Dozen', 'Kg', 'Grams'],
-  vegetables: ['Kg', 'Grams'],
-  grains:     ['Kg', 'Grams'],
-  liquids:    ['Liters', 'ml'],
-  packaged:   ['Small', 'Medium', 'Large']
+/* ==================== Data ==================== */
+
+const LANGUAGES = { en: 'English', te: 'తెలుగు', hi: 'हिन्दी' };
+
+const I18N = {
+  appName: { en: 'Grocery Marking', te: 'గ్రాసరీ మార్కింగ్', hi: 'ग्रोसरी मार्किंग' },
+  home: { en: 'Home', te: 'హోమ్', hi: 'होम' },
+  savedLists: { en: 'Saved Lists', te: 'సేవ్ చేసిన జాబితాలు', hi: 'सेव किए गए लिस्ट' },
+  myProfile: { en: 'My Profile', te: 'నా ప్రొఫైల్', hi: 'मेरी प्रोफ़ाइल' },
+  language: { en: 'LANGUAGE', te: 'భాష', hi: 'भाषा' },
+  search: { en: 'Search item…', te: 'వస్తువు కోసం వెతకండి…', hi: 'आइटम खोजें…' },
+  totalItems: { en: 'Total Items', te: 'మొత్తం వస్తువులు', hi: 'कुल आइटम' },
+  share: { en: 'Share', te: 'షేర్', hi: 'शेयर' },
+  save: { en: 'Save', te: 'సేవ్', hi: 'सेव' },
+  continue: { en: 'Continue', te: 'కొనసాగించు', hi: 'जारी रखें' },
+  quickAdd: { en: 'Quick Add', te: 'శీఘ్ర జోడింపు', hi: 'क्विक ऐड' },
+  monthlyTitle: { en: 'MONTHLY SHOPPING', te: 'నెలవారీ షాపింగ్', hi: 'मासिक शॉपिंग' },
+  continueLastMonth: { en: 'Continue Last Month', te: 'గత నెల కొనసాగించు', hi: 'पिछला महीना जारी रखें' },
+  copyPreviousMonth: { en: 'Copy Previous Month', te: 'మునుపటి నెల కాపీ చేయి', hi: 'पिछला महीना कॉपी करें' },
+  startNewList: { en: 'Start New List', te: 'కొత్త జాబితా ప్రారంభించు', hi: 'नई सूची शुरू करें' },
+  noSavedLists: { en: 'No saved lists yet', te: 'ఇంకా సేవ్ చేసిన జాబితా లేదు', hi: 'अभी कोई सूची सेव नहीं हुई' },
+  hintSave: { en: 'Tap Save to keep a list', te: 'జాబితా సేవ్ చేయడానికి సేవ్ నొక్కండి', hi: 'सूची रखने के लिए सेव टैप करें' },
+  addToCart: { en: 'Add to Cart', te: 'కార్టులో చేర్చు', hi: 'कार्ट में जोड़ें' },
+  continueEditing: { en: 'Continue Editing', te: 'మార్పులు కొనసాగించు', hi: 'संपादन जारी रखें' },
+  delete: { en: 'Delete', te: 'తొలగించు', hi: 'हटाएँ' },
+  addCustomItem: { en: 'Add Custom Item', te: 'కొత్త వస్తువు జోడించు', hi: 'नया आइटम जोड़ें' },
+  manageMasterList: { en: 'Manage Master List', te: 'మాస్టర్ జాబితా నిర్వహించు', hi: 'मास्टर सूची प्रबंधित करें' },
+  settings: { en: 'SETTINGS', te: 'సెట్టింగ్స్', hi: 'सेटिंग्स' },
+  resetMaster: { en: 'Reset Master List', te: 'మాస్టర్ జాబితా రీసెట్ చేయి', hi: 'मास्टर सूची रीसेट करें' },
+  clearAllData: { en: 'Clear All Data', te: 'అన్ని డేటా తొలగించు', hi: 'सभी डेटा साफ़ करें' },
+  futureTrends: { en: 'FUTURE CONSUMPTION TRENDS', te: 'భవిష్యత్ వినియోగ ధోరణులు', hi: 'भविष्य के उपभोग रुझान' },
+  trendsNote: { en: 'Consumption trends and smart suggestions are coming soon. Your shopping history is stored on this device to power them.', te: 'వినియోగ ధోరణులు మరియు స్మార్ట్ సూచనలు త్వరలో వస్తున్నాయి. వాటి కోసం మీ షాపింగ్ చరిత్ర ఈ పరికరంలో నిల్వ చేయబడుతుంది.', hi: 'उपभोग रुझान और स्मार्ट सुझाव जल्द आ रहे हैं। इनके लिए आपका शॉपिंग इतिहास इसी डिवाइस पर संग्रहीत है।' },
+  aboutApp: { en: 'ABOUT APP', te: 'యాప్ గురించి', hi: 'ऐप के बारे में' },
+  aboutText: { en: 'A smart monthly grocery assistant. Your lists stay private on this device.', te: 'స్మార్ట్ నెలవారీ గ్రాసరీ అసిస్టెంట్. మీ జాబితాలు ఈ పరికరంలోనే సురక్షితంగా ఉంటాయి.', hi: 'स्मार्ट मासिक किराना सहायक। आपकी सूचियाँ इसी डिवाइस पर सुरक्षित रहती हैं।' },
+  emptyCart: { en: 'Your list is empty', te: 'మీ జాబితా ఖాళీగా ఉంది', hi: 'आपकी सूची खाली है' },
+  tapItemHint: { en: 'Tap an item above to add it', te: 'జోడించడానికి పైన ఉన్న వస్తువును నొక్కండి', hi: 'जोड़ने के लिए ऊपर किसी आइटम को टैप करें' },
+  add: { en: 'Add', te: 'జోడించు', hi: 'जोड़ें' },
+  cancel: { en: 'Cancel', te: 'రద్దు', hi: 'रद्द करें' },
+  saveList: { en: 'Save List', te: 'జాబితా సేవ్ చేయి', hi: 'सूची सेव करें' },
+  listName: { en: 'List Name', te: 'జాబితా పేరు', hi: 'सूची का नाम' },
+  alreadySaved: { en: 'This shopping list is already saved.', te: 'ఈ షాపింగ్ జాబితా ఇప్పటికే సేవ్ చేయబడింది.', hi: 'यह शॉपिंग सूची पहले से सेव है।' },
+  updatedSuccess: { en: 'Shopping list updated successfully.', te: 'షాపింగ్ జాబితా విజయవంతంగా నవీకరించబడింది.', hi: 'शॉपिंग सूची सफलतापूर्वक अपडेट की गई।' },
+  listSaved: { en: 'List saved!', te: 'జాబితా సేవ్ చేయబడింది!', hi: 'सूची सेव हो गई!' },
+  addItemsFirst: { en: 'Add some items first!', te: 'ముందుగా కొన్ని వస్తువులు జోడించండి!', hi: 'पहले कुछ आइटम जोड़ें!' },
+  created: { en: 'Created', te: 'సృష్టించినది', hi: 'बनाई गई' },
+  lastModified: { en: 'Last Modified', te: 'చివరిగా మార్చినది', hi: 'अंतिम संपादित' },
+  replaceListQ: { en: 'Replace your current cart with this saved list?', te: 'మీ ప్రస్తుత కార్టును ఈ సేవ్ చేసిన జాబితాతో భర్తీ చేయాలా?', hi: 'क्या आपका वर्तमान कार्ट इस सूची से बदलें?' },
+  listAdded: { en: 'Saved list added to cart', te: 'సేవ్ చేసిన జాబితా కార్టుకు జోడించబడింది', hi: 'सूची कार्ट में जोड़ दी गई' },
+  mergeTitle: { en: 'Add to Current Cart', te: 'కరెంట్ కార్టుకు జోడించు', hi: 'वर्तमान कार्ट में जोड़ें' },
+  mergeQ: { en: 'This cart already contains items.\nChoose what you want to do.', te: 'కరెంట్ కార్ట్‌లో ఇప్పటికే వస్తువులు ఉన్నాయి.\nమీరు ఏమి చేయాలనుకుంటున్నారు?', hi: 'कार्ट में पहले से आइटम हैं.\nआप क्या करना चाहेंगे?' },
+  mergeWithCart: { en: 'Merge with Current Cart', te: 'కరెంట్ కార్టుతో విలీనం చేయి', hi: 'वर्तमान कार्ट से मर्ज करें' },
+  replaceCart: { en: 'Replace Cart', te: 'కార్ట్ మార్చు', hi: 'कार्ट बदलें' },
+  editItem: { en: 'Edit Item', te: 'వస్తువును సవరించు', hi: 'आइटम संपादित करें' },
+  itemName: { en: 'Item Name', te: 'వస్తువు పేరు', hi: 'आइटम का नाम' },
+  icon: { en: 'Icon (optional)', te: 'ఐకాన్ (ఐచ్ఛికం)', hi: 'आइकन (वैकल्पिक)' },
+  quantity: { en: 'Quantity', te: 'పరిమాణం', hi: 'मात्रा' },
+  unit: { en: 'Unit', te: 'యూనిట్', hi: 'इकाई' },
+  teluguName: { en: 'Telugu Name (optional)', te: 'తెలుగు పేరు (ఐచ్ఛికం)', hi: 'तेलुगु नाम (वैकल्पिक)' },
+  hindiName: { en: 'Hindi Name (optional)', te: 'హిందీ పేరు (ఐచ్ఛికం)', hi: 'हिंदी नाम (वैकल्पिक)' },
+  quantitySteps: { en: 'Quantity Steps', te: 'పరిమాణ దశలు', hi: 'मात्रा चरण' },
+  noSearchResults: { en: 'No matching item found', te: 'సరిపోలిన వస్తువు కనుగొనబడలేదు', hi: 'कोई मेल खाता आइटम नहीं मिला' },
+  deleteConfirm: { en: 'Delete this saved list?', te: 'ఈ సేవ్ చేసిన జాబితాను తొలగించాలా?', hi: 'इस सूची को हटाएँ?' },
+  listDeleted: { en: 'List deleted', te: 'జాబితా తొలగించబడింది', hi: 'सूची हटा दी गई' },
+  removeMasterConfirm: { en: 'Remove this item from the Master List?', te: 'మాస్టర్ జాబితా నుండి ఈ వస్తువును తీసివేయాలా?', hi: 'क्या यह आइटम मास्टर सूची से हटाएँ?' },
+  resetConfirm: { en: 'Reset Master List to defaults?', te: 'మాస్టర్ జాబితాను డిఫాల్ట్‌కు రీసెట్ చేయాలా?', hi: 'क्या मास्टर सूची डिफ़ॉल्ट पर रीसेट करें?' },
+  clearConfirm: { en: 'Delete all data? This cannot be undone.', te: 'అన్ని డేటాను తొలగించాలా? దీన్ని రద్దు చేయలేము.', hi: 'सभी डेटा हटाएँ? इसे पूर्ववत नहीं किया जा सकता।' },
+  replaceCartConfirm: { en: 'Replace your current cart with this saved list?', te: 'మీ ప్రస్తుత కార్టును ఈ సేవ్ చేసిన జాబితాతో మార్చాలా?', hi: 'क्या आपका वर्तमान कार्ट इस सूची से बदलें?' },
+  startNewConfirm: { en: 'Start a new list? Current items will be cleared.', te: 'కొత్త జాబితా ప్రారంభించాలా? ప్రస్తుత వస్తువులు తొలగించబడతాయి.', hi: 'नई सूची शुरू करें? मौजूदा आइटम हट जाएंगे।' },
+  addCustomSearch: { en: 'Add as new item', te: 'కొత్త వస్తువుగా జోడించండి', hi: 'नए आइटम के रूप में जोड़ें' },
+  addedToMaster: { en: 'Added to Master List', te: 'మాస్టర్ జాబితాకు జోడించబడింది', hi: 'मास्टर सूची में जोड़ा गया' },
+  removedFromMaster: { en: 'Removed from Master List', te: 'మాస్టర్ జాబితా నుండి తీసివేయబడింది', hi: 'मास्टर सूची से हटाया गया' },
+  itemRemoved: { en: 'Removed', te: 'తీసివేయబడింది', hi: 'हटाया गया' },
+  cartReplaced: { en: 'Cart replaced', te: 'కార్ట్ మార్చబడింది', hi: 'कार्ट बदल दिया गया' },
+  copiedList: { en: 'Copied to a new list', te: 'కొత్త జాబితాకు కాపీ చేయబడింది', hi: 'नई सूची में कॉपी हो गई' },
+  newList: { en: 'New list started', te: 'కొత్త జాబితా ప్రారంభించబడింది', hi: 'नई सूची शुरू हो गई' },
+  listEmpty: { en: 'List is already empty', te: 'జాబితా ఇప్పటికే ఖాళీగా ఉంది', hi: 'सूची पहले से खाली है' },
+  noSaved: { en: 'No saved lists yet', te: 'సేవ్ చేసిన జాబితా లేదు', hi: 'कोई सूची सेव नहीं' },
+  ok: { en: 'OK', te: 'సరే', hi: 'ठीक है' },
+  groceryList: { en: 'Grocery List', te: 'గ్రాసరీ జాబితా', hi: 'किराना सूची' },
+  alreadyInMaster: { en: 'Item already in Master List', te: 'వస్తువు ఇప్పటికే మాస్టర్ జాబితాలో ఉంది', hi: 'आइटम पहले से मास्टर सूची में है' },
+  enterName: { en: 'Enter an item name', te: 'వస్తువు పేరు నమోదు చేయండి', hi: 'आइटम का नाम दर्ज करें' },
+  savedHistory: { en: 'shopping records stored for smart suggestions', te: 'స్మార్ట్ సూచనల కోసం షాపింగ్ రికార్డులు నిల్వ చేయబడ్డాయి', hi: 'स्मार्ट सुझावों के लिए शॉपिंग रिकॉर्ड संग्रहीत हैं' },
+  purchased: { en: 'Purchased', te: 'కొనుగోలు చేశారు', hi: 'खरीदा गया' },
+  restore: { en: 'Restored', te: 'పునరుద్ధరించబడింది', hi: 'बहाल' },
+  undo: { en: 'Undo', te: 'రద్దు చేయి', hi: 'पूर्ववत' },
+  itemDeleted: { en: 'Item deleted', te: 'వస్తువు తొలగించబడింది', hi: 'आइटम हटाया गया' },
+  note: { en: 'Note', te: 'గమనిక', hi: 'नोट' },
+  noteForItem: { en: 'Note for item', te: 'వస్తువుకు గమనిక', hi: 'आइटम के लिए नोट' },
+  removeNote: { en: 'Remove Note', te: 'గమనిక తొలగించు', hi: 'नोट हटाएँ' },
+  noteSaved: { en: 'Note saved', te: 'గమనిక సేవ్ చేయబడింది', hi: 'नोट सेव हो गया' },
+  noteRemoved: { en: 'Note removed', te: 'గమనిక తొలగించబడింది', hi: 'नोट हटा दिया गया' },
+  favAdded: { en: 'Added to favourites', te: 'ఇష్టమైనవాటికి జోడించబడింది', hi: 'पसंदीदा में जोड़ा गया' },
+  favRemoved: { en: 'Removed from favourites', te: 'ఇష్టమైనవాటి నుండి తీసివేయబడింది', hi: 'पसंदीदा से हटाया गया' },
+  category: { en: 'Category', te: 'వర్గం', hi: 'श्रेणी' },
+  darkMode: { en: 'Dark Mode', te: 'డార్క్ మోడ్', hi: 'डार्क मोड' },
+  installApp: { en: 'Install App on Phone', te: 'ఫోన్‌లో యాప్ ఇన్‌స్టాల్ చేయండి', hi: 'फोन पर ऐप इंस्टॉल करें' },
+  resetQuantities: { en: 'Reset Quantities', te: 'పరిమాణాలు రీసెట్ చేయి', hi: 'मात्रा रीसेट करें' },
+  clearPurchased: { en: 'Clear Purchased Items', te: 'కొనుగోలు చేసిన వస్తువులను తొలగించు', hi: 'खरीदे गए आइटम हटाएँ' },
+  resetList: { en: 'Reset Entire List', te: 'మొత్తం జాబితా రీసెట్ చేయి', hi: 'पूरी सूची रीसेट करें' },
+  qtyReset: { en: 'Quantities reset', te: 'పరిమాణాలు రీసెట్ చేయబడ్డాయి', hi: 'मात्राएँ रीसेट हो गईं' },
+  purchasedCleared: { en: 'Purchased items cleared', te: 'కొనుగోలు చేసిన వస్తువులు తొలగించబడ్డాయి', hi: 'खरीदे गए आइटम हटाए गए' },
+  statistics: { en: 'STATISTICS', te: 'గణాంకాలు', hi: 'आँकड़े' },
+  loadingStats: { en: 'Calculating…', te: 'గణిస్తోంది…', hi: 'गणना हो रही है…' },
+  noStats: { en: 'No data yet. Save lists to see statistics.', te: 'ఇంకా డేటా లేదు. గణాంకాల కోసం జాబితాలను సేవ్ చేయండి.', hi: 'अभी कोई डेटा नहीं। आँकड़ों के लिए सूचियाँ सेव करें।' },
+  recentlyPurchased: { en: 'Recently Purchased', te: 'ఇటీవల కొనుగోలు చేసినవి', hi: 'हाल ही में खरीदा गया' },
+  frequentlyPurchased: { en: 'Frequently Purchased', te: 'తరచుగా కొనుగోలు చేసినవి', hi: 'अक्सर खरीदे गए' },
+  monthlyStats: { en: 'Monthly', te: 'నెలవారీ', hi: 'मासिक' },
+  categoryStats: { en: 'By Category', te: 'వర్గం వారీగా', hi: 'श्रेणी अनुसार' },
+  scanBarcode: { en: 'Scan Barcode', te: 'బార్‌కోడ్ స్కాన్ చేయండి', hi: 'बारकोड स्कैन करें' },
+  scanHint: { en: 'Point camera at a barcode', te: 'కెమెరాను బార్‌కోడ్ వైపు చూపండి', hi: 'कैमरा बारकोड पर ले जाएँ' },
+  scanUnsupported: { en: 'Barcode scanner not supported on this device', te: 'ఈ పరికరంలో బార్‌కోడ్ స్కానర్ అందుబాటులో లేదు', hi: 'इस डिवाइस पर बारकोड स्कैनर उपलब्ध नहीं है' },
+  cameraError: { en: 'Camera not available', te: 'కెమెరా అందుబాటులో లేదు', hi: 'कैमरा उपलब्ध नहीं है' },
+  scanned: { en: 'Scanned', te: 'స్కాన్ చేయబడింది', hi: 'स्कैन किया गया' },
+  scanStop: { en: 'Tap again to stop', te: 'ఆపడానికి మళ్ళీ నొక్కండి', hi: 'रोकने के लिए फिर से टैप करें' },
+  voiceUnsupported: { en: 'Voice search not supported here', te: 'వాయిస్ సెర్చ్ ఇక్కడ అందుబాటులో లేదు', hi: 'यहाँ वॉयस सर्च उपलब्ध नहीं है' },
+  voiceListening: { en: 'Listening…', te: 'వినుట…', hi: 'सुन रहा है…' },
+  voiceError: { en: 'Could not hear you, try again', te: 'మీ మాట వినిపించలేదు, మళ్ళీ ప్రయత్నించండి', hi: 'आप नहीं सुनाई दिए, फिर कोशिश करें' },
+  renameList: { en: 'Rename', te: 'పేరు మార్చు', hi: 'नाम बदलें' },
+  renameTitle: { en: 'Rename List', te: 'జాబితా పేరు మార్చండి', hi: 'सूची का नाम बदलें' },
+  undoDeleted: { en: 'Item restored', te: 'వస్తువు పునరుద్ధరించబడింది', hi: 'आइटम बहाल किया गया' },
+  noCameraPermission: { en: 'Camera permission needed for scanning', te: 'స్కానింగ్ కోసం కెమెరా అనుమతి అవసరం', hi: 'स्कैनिंग के लिए कैमरा अनुमति आवश्यक है' }
 };
+
+const CATEGORIES = {
+  grains:     { icon: '🌾', en: 'Grains, Cereals & Breakfast', te: 'ధాన్యాలు, తృణధాన్యాలు & అల్పాహారం', hi: 'अनाज, अनाज उत्पाद व नाश्ता' },
+  essentials: { icon: '🥣', en: 'Grocery Essentials', te: 'గ్రాసరీ అవసరాలు', hi: 'किराना आवश्यक सामान' },
+  pulses:     { icon: '🌶️', en: 'Pulses, Spices & Masalas', te: 'పప్పులు, సుగంధ ద్రవ్యాలు & మసాలాలు', hi: 'दालें, मसाले व मसाला' },
+  personal:   { icon: '🧴', en: 'Personal Care', te: 'వ్యక్తిగత సంరక్షణ', hi: 'व्यक्तिगत देखभाल' },
+  cleaning:   { icon: '🧹', en: 'Cleaning', te: 'శుభ్రపరిచే వస్తువులు', hi: 'सफाई सामान' },
+  oils:       { icon: '🫖', en: 'Tea & Oils', te: 'టీ & నూనెలు', hi: 'चाय व तेल' },
+  pooja:      { icon: '🪔', en: 'Pooja Items', te: 'పూజా సామగ్రి', hi: 'पूजा सामग्री' },
+  other:      { icon: '📦', en: 'Other', te: 'ఇతర', hi: 'अन्य' }
+};
+
+const CAT_ORDER = ['grains', 'essentials', 'pulses', 'personal', 'cleaning', 'oils', 'pooja', 'other'];
+
+function catName(id) {
+  const c = CATEGORIES[id] || CATEGORIES.other;
+  return c[lang] || c.en;
+}
+
+const DEFAULT_MASTER = [
+  /* ---- 🌾 Grains, Cereals & Breakfast ---- */
+  { id: 'rice', en: 'Rice', te: 'బియ్యం', hi: 'चावल', icon: '🍚', cat: 'grains', steps: ['250 g', '500 g', '1 Kg', '2 Kg', '5 Kg', '10 Kg', '25 Kg'] },
+  { id: 'rice-bag', en: 'Rice Bag', te: 'బియ్యం సంచి', hi: 'चावल की बोरी', icon: '🍚', cat: 'grains', steps: ['5 Kg', '10 Kg', '25 Kg', '50 Kg'] },
+  { id: 'rice-rava', en: 'Rice Rava', te: 'బియ్యపు రవ్వ', hi: 'चावल का रवा', icon: '🌾', cat: 'grains', steps: ['500 g', '1 Kg', '2 Kg'] },
+  { id: 'wheat-flour', en: 'Wheat Flour', te: 'గోధుమ పిండి', hi: 'गेहूं का आटा', icon: '🌾', cat: 'grains', steps: ['1 Kg', '2 Kg', '5 Kg'] },
+  { id: 'rice-flour', en: 'Rice Flour', te: 'బియ్యప్పిండి', hi: 'चावल का आटा', icon: '🌾', cat: 'grains', steps: ['500 g', '1 Kg', '2 Kg'] },
+  { id: 'wheat-grains', en: 'Wheat Grains', te: 'గోధుమలు', hi: 'गेहूँ के दाने', icon: '🌾', cat: 'grains', steps: ['1 Kg', '2 Kg', '5 Kg'] },
+  { id: 'barley', en: 'Barley', te: 'బార్లీ', hi: 'जौ', icon: '🌾', cat: 'grains', steps: ['250 g', '500 g', '1 Kg'] },
+  { id: 'bombay-rava', en: 'Bombay Rava', te: 'బొంబాయి రవ్వ', hi: 'बॉम्बे रवा', icon: '🌾', cat: 'grains', steps: ['500 g', '1 Kg', '2 Kg'] },
+  { id: 'gothuma-rava', en: 'Wheat Rava', te: 'గోధుమ రవ్వ', hi: 'गेहूं रवा', icon: '🌾', cat: 'grains', steps: ['500 g', '1 Kg', '2 Kg'] },
+  { id: 'corn-flour', en: 'Corn Flour', te: 'కార్న్ పిండి', hi: 'कॉर्न फ्लोर', icon: '🌽', cat: 'grains', steps: ['250 g', '500 g', '1 Kg'] },
+  { id: 'saggu-biyyam', en: 'Sago Pearls', te: 'సగ్గుబియ్యం', hi: 'साबूदाना', icon: '⚪', cat: 'grains', steps: ['250 g', '500 g', '1 Kg'] },
+  { id: 'saggu', en: 'Sago', te: 'సగ్గు', hi: 'साबूदाना', icon: '⚪', cat: 'grains', steps: ['250 g', '500 g', '1 Kg'] },
+  { id: 'oats', en: 'Oats', te: 'ఓట్స్', hi: 'ओट्स', icon: '🥣', cat: 'grains', steps: ['500 g', '1 Kg', '2 Kg'] },
+  { id: 'corn-flakes', en: 'Corn Flakes', te: 'కార్న్ ఫ్లేక్స్', hi: 'कॉर्न फ्लेक्स', icon: '🥣', cat: 'grains', steps: ['1 Pack', '2 Pack'] },
+  { id: 'chia-seeds', en: 'Chia Seeds', te: 'చియా సీడ్స్', hi: 'चिया बीज', icon: '🌰', cat: 'grains', steps: ['100 g', '250 g', '500 g'] },
+  { id: 'nutmeg', en: 'Nutmeg', te: 'జాజికాయ', hi: 'जायफल', icon: '🌰', cat: 'grains', steps: ['50 g', '100 g', '250 g'] },
+  { id: 'toasts', en: 'Toasts', te: 'టోస్టులు', hi: 'टोस्ट', icon: '🍞', cat: 'grains', steps: ['1 Pack', '2 Pack'] },
+  { id: 'bread', en: 'Bread', te: 'బ్రెడ్', hi: 'ब्रेड', icon: '🍞', cat: 'grains', steps: ['1 Packet'] },
+  { id: 'disposable-glasses', en: 'Disposable Glasses', te: 'డిస్పోజబుల్ గ్లాసెస్', hi: 'डिस्पोजेबल गिलास', icon: '🥤', cat: 'grains', steps: ['25 Pc', '50 Pc', '100 Pc'] },
+  { id: 'biscuits', en: 'Biscuits', te: 'బిస్కెట్లు', hi: 'बिस्कुट', icon: '🍪', cat: 'grains', steps: ['1 Pack', '2 Pack'] },
+  { id: 'noodles', en: 'Noodles', te: 'నూడుల్స్', hi: 'नूडल्स', icon: '🍜', cat: 'grains', steps: ['1 Pack', '2 Pack'] },
+
+  /* ---- 🥣 Grocery Essentials ---- */
+  { id: 'sugar', en: 'Sugar', te: 'చక్కెర', hi: 'चीनी', icon: '🍬', cat: 'essentials', steps: ['250 g', '500 g', '1 Kg', '2 Kg', '5 Kg'] },
+  { id: 'jaggery', en: 'Jaggery', te: 'బెల్లం', hi: 'गुड़', icon: '🍬', cat: 'essentials', steps: ['500 g', '1 Kg'] },
+  { id: 'salt', en: 'Salt', te: 'ఉప్పు', hi: 'नमक', icon: '🧂', cat: 'essentials', steps: ['500 g', '1 Kg', '2 Kg'] },
+  { id: 'milk', en: 'Milk', te: 'పాలు', hi: 'दूध', icon: '🥛', cat: 'essentials', steps: ['100 ml', '200 ml', '500 ml', '1 L', '2 L'] },
+  { id: 'curd', en: 'Curd', te: 'పెరుగు', hi: 'दही', icon: '🥛', cat: 'essentials', steps: ['500 ml', '1 L', '2 L'] },
+  { id: 'ghee', en: 'Ghee', te: 'నెయ్యి', hi: 'घी', icon: '🧈', cat: 'essentials', steps: ['200 ml', '500 ml', '1 L'] },
+  { id: 'butter', en: 'Butter', te: 'వెన్న', hi: 'मक्खन', icon: '🧈', cat: 'essentials', steps: ['100 g', '500 g'] },
+  { id: 'cheese', en: 'Cheese', te: 'చీజ్', hi: 'चीज़', icon: '🧀', cat: 'essentials', steps: ['100 g', '500 g'] },
+  { id: 'water', en: 'Water', te: 'నీళ్ళు', hi: 'पानी', icon: '💧', cat: 'essentials', steps: ['1 L', '2 L', '5 L'] },
+  { id: 'juice', en: 'Juice', te: 'జ్యూస్', hi: 'जूस', icon: '🧃', cat: 'essentials', steps: ['1 L', '2 L'] },
+  { id: 'meal-maker', en: 'Meal Maker', te: 'మీల్ మేకర్', hi: 'मील मेकर', icon: '🫘', cat: 'essentials', steps: ['200 g', '500 g', '1 Kg'] },
+  { id: 'sponge', en: 'Sponge', te: 'స్పాంజ్', hi: 'स्पंज', icon: '🧽', cat: 'essentials', steps: ['1 Pc', '2 Pc', '3 Pc'] },
+  { id: 'hand-wash', en: 'Hand Wash', te: 'హ్యాండ్ వాష్', hi: 'हैंड वॉश', icon: '🧴', cat: 'essentials', steps: ['200 ml', '500 ml', '1 L'] },
+  { id: 'paper-towels', en: 'Paper Towels', te: 'పేపర్ టవల్స్', hi: 'पेपर टॉवल', icon: '🧻', cat: 'essentials', steps: ['1 Pack', '2 Pack'] },
+  { id: 'ice-cream', en: 'Ice Cream', te: 'ఐస్ క్రీమ్', hi: 'आइसक्रीम', icon: '🍨', cat: 'essentials', steps: ['1 Pc', '2 Pc'] },
+
+  /* ---- 🌶️ Pulses, Spices & Masalas ---- */
+  { id: 'kandi-pappu', en: 'Kandi Pappu', te: 'కంది పప్పు', hi: 'अरहर दाल', icon: '🫘', cat: 'pulses', steps: ['250 g', '500 g', '1 Kg', '2 Kg', '5 Kg'] },
+  { id: 'pesara-pappu', en: 'Pesara Pappu', te: 'పెసర పప్పు', hi: 'मूंग दाल', icon: '🫘', cat: 'pulses', steps: ['250 g', '500 g', '1 Kg', '2 Kg', '5 Kg'] },
+  { id: 'minapa-pappu', en: 'Minapa Pappu', te: 'మినప పప్పు', hi: 'उड़द दाल', icon: '🫘', cat: 'pulses', steps: ['250 g', '500 g', '1 Kg', '2 Kg', '5 Kg'] },
+  { id: 'senaga-pappu', en: 'Senaga Pappu', te: 'శెనగ పప్పు', hi: 'चना दाल', icon: '🫘', cat: 'pulses', steps: ['250 g', '500 g', '1 Kg', '2 Kg', '5 Kg'] },
+  { id: 'masoor-dal', en: 'Masoor Dal', te: 'మసూర్ పప్పు', hi: 'मसूर दाल', icon: '🫘', cat: 'pulses', steps: ['250 g', '500 g', '1 Kg', '2 Kg', '5 Kg'] },
+  { id: 'rajma', en: 'Rajma', te: 'రాజ్మా', hi: 'राजमा', icon: '🫘', cat: 'pulses', steps: ['250 g', '500 g', '1 Kg', '2 Kg', '5 Kg'] },
+  { id: 'white-chana', en: 'White Chana', te: 'వైట్ చనా', hi: 'सफेद चना', icon: '🫘', cat: 'pulses', steps: ['250 g', '500 g', '1 Kg', '2 Kg', '5 Kg'] },
+  { id: 'chana-dal', en: 'Chana Dal', te: 'శనగ దాల్', hi: 'चना दाल', icon: '🫘', cat: 'pulses', steps: ['250 g', '500 g', '1 Kg'] },
+  { id: 'bombay-pappu', en: 'Bombay Pappu', te: 'బొంబాయి పప్పు', hi: 'बॉम्बे चना', icon: '🫘', cat: 'pulses', steps: ['250 g', '500 g', '1 Kg'] },
+  { id: 'talimpu-senaga', en: 'Fried Chana', te: 'తాలింపు శనగ', hi: 'तालिंपू चना', icon: '🫘', cat: 'pulses', steps: ['250 g', '500 g', '1 Kg'] },
+  { id: 'pesalu', en: 'Green Gram', te: 'పెసలు', hi: 'मूंग', icon: '🫘', cat: 'pulses', steps: ['250 g', '500 g', '1 Kg'] },
+  { id: 'foxnuts', en: 'Fox Nuts', te: 'బొబ్బర్లు', hi: 'मखाना', icon: '🫘', cat: 'pulses', steps: ['100 g', '250 g', '500 g'] },
+  { id: 'turmeric', en: 'Turmeric Powder', te: 'పసుపు', hi: 'हल्दी', icon: '🫙', cat: 'pulses', steps: ['100 g', '250 g'] },
+  { id: 'turmeric-sticks', en: 'Turmeric Sticks', te: 'పసుపు కొమ్ములు', hi: 'हल्दी की गांठ', icon: '🌿', cat: 'pulses', steps: ['50 g', '100 g', '250 g'] },
+  { id: 'chilli-powder', en: 'Chilli Powder', te: 'కారం', hi: 'मिर्च पाउडर', icon: '🌶️', cat: 'pulses', steps: ['100 g', '250 g', '500 g'] },
+  { id: 'mustard', en: 'Mustard', te: 'ఆవాలు', hi: 'सरसों', icon: '🌰', cat: 'pulses', steps: ['100 g', '250 g'] },
+  { id: 'cumin', en: 'Cumin', te: 'జీలకర్ర', hi: 'जीरा', icon: '🌰', cat: 'pulses', steps: ['100 g', '250 g'] },
+  { id: 'fenugreek', en: 'Fenugreek Seeds', te: 'మెంతులు', hi: 'मेथी दाना', icon: '🌰', cat: 'pulses', steps: ['100 g', '250 g', '500 g'] },
+  { id: 'fennel', en: 'Fennel Seeds', te: 'సోంపు', hi: 'सौंफ', icon: '🌰', cat: 'pulses', steps: ['100 g', '250 g'] },
+  { id: 'coriander-seeds', en: 'Coriander Seeds', te: 'ధనియాలు', hi: 'धनिया दाना', icon: '🌿', cat: 'pulses', steps: ['100 g', '250 g'] },
+  { id: 'tamarind', en: 'Tamarind', te: 'చింతపండు', hi: 'इमली', icon: '🫘', cat: 'pulses', steps: ['250 g', '500 g'] },
+  { id: 'raisins', en: 'Raisins', te: 'ఎండు ద్రాక్ష', hi: 'किशमिश', icon: '🍇', cat: 'pulses', steps: ['100 g', '250 g', '500 g'] },
+  { id: 'dry-coconut', en: 'Dry Coconut', te: 'ఎండు కొబ్బరి', hi: 'सूखा नारियल', icon: '🥥', cat: 'pulses', steps: ['1 Pc', '2 Pc', '250 g'] },
+  { id: 'sabudana', en: 'Sabudana', te: 'సాబుదానా', hi: 'साबूदाना', icon: '⚪', cat: 'pulses', steps: ['250 g', '500 g', '1 Kg'] },
+  { id: 'soda-bottles', en: 'Soda Bottles', te: 'సోడా బాటిల్స్', hi: 'सोडा बोतल', icon: '🥤', cat: 'pulses', steps: ['1 Bottle', '2 Bottles', '3 Bottles'] },
+  { id: 'sambrani', en: 'Sambrani', te: 'సాంబ్రాణి', hi: 'सांब्राणी', icon: '🌿', cat: 'pulses', steps: ['50 g', '100 g', '250 g'] },
+  { id: 'pitambari', en: 'Pitambari', te: 'పీతాంబరి', hi: 'पीतांबरी', icon: '🫙', cat: 'pulses', steps: ['100 g', '250 g'] },
+  { id: 'jowar', en: 'Sorghum', te: 'జొన్నలు', hi: 'ज्वार', icon: '🌾', cat: 'pulses', steps: ['500 g', '1 Kg', '2 Kg'] },
+  { id: 'ragi', en: 'Finger Millet', te: 'రాగులు', hi: 'रागी', icon: '🌾', cat: 'pulses', steps: ['500 g', '1 Kg', '2 Kg'] },
+  { id: 'maize', en: 'Maize', te: 'మక్కలు', hi: 'मक्का', icon: '🌽', cat: 'pulses', steps: ['500 g', '1 Kg', '2 Kg'] },
+
+  /* ---- 🧴 Personal Care ---- */
+  { id: 'soap', en: 'Soap', te: 'సబ్బు', hi: 'साबुन', icon: '🧼', cat: 'personal', steps: ['1 Piece'] },
+  { id: 'shampoo', en: 'Shampoo', te: 'షాంపూ', hi: 'शैम्पू', icon: '🧴', cat: 'personal',
+    subs: [
+      { label: 'Bottle', steps: ['1 Bottle', '2 Bottles', '3 Bottles'] },
+      { label: 'Sachet', steps: ['1 Pc', '2 Pcs', '3 Pcs'] }
+    ] },
+  { id: 'toothpaste', en: 'Toothpaste', te: 'టూత్ పేస్ట్', hi: 'टूथपेस्ट', icon: '🪥', cat: 'personal', steps: ['1 Tube'] },
+  { id: 'fair-and-lovely', en: 'Fair & Lovely', te: 'ఫెయిర్ & లవ్లీ', hi: 'फेयर एंड लवली', icon: '🧴', cat: 'personal', steps: ['1 Tube', '2 Tubes'] },
+  { id: 'henna-leaves', en: 'Henna Leaves', te: 'గోరింటాకు', hi: 'मेंहदी पत्ती', icon: '🌿', cat: 'personal', steps: ['100 g', '250 g', '500 g'] },
+  { id: 'henna-cone', en: 'Henna Cone', te: 'గోరింటాకు కోన్', hi: 'मेंहदी कोन', icon: '🌿', cat: 'personal', steps: ['1 Pc', '2 Pc', '5 Pc'] },
+  { id: 'hair-band', en: 'Hair Band', te: 'హెయిర్ బ్యాండ్', hi: 'हेयर बैंड', icon: '🎀', cat: 'personal', steps: ['1 Pc', '2 Pc', '5 Pc'] },
+  { id: 'hair-net', en: 'Hair Net', te: 'హెయిర్ నెట్', hi: 'हेयर नेट', icon: '🥅', cat: 'personal', steps: ['1 Pc', '2 Pc'] },
+  { id: 'all-out', en: 'All Out', te: 'ఆల్ ఔట్', hi: 'ऑल आउट', icon: '🦟', cat: 'personal', steps: ['1 Pc', '2 Pc'] },
+  { id: 'reeta-oil', en: 'Reeta Oil', te: 'రీటా ఆయిల్', hi: 'रीठा तेल', icon: '🧴', cat: 'personal', steps: ['100 ml', '200 ml', '500 ml'] },
+  { id: 'coconut-hair-oil', en: 'Coconut Hair Oil', te: 'కొబ్బరి నూనె', hi: 'नारियल तेल', icon: '🥥', cat: 'personal', steps: ['100 ml', '200 ml', '500 ml', '1 L'] },
+  { id: 'green-tea', en: 'Green Tea', te: 'గ్రీన్ టీ', hi: 'ग्रीन टी', icon: '🍵', cat: 'personal', steps: ['1 Pack', '2 Pack'] },
+  { id: 'cotton-balls', en: 'Cotton Balls', te: 'పత్తులు', hi: 'कॉटन बॉल', icon: '☁️', cat: 'personal', steps: ['1 Pack', '2 Pack'] },
+  { id: 'cotton-sticks', en: 'Cotton Sticks', te: 'కాటన్ స్టిక్స్', hi: 'कॉटन स्टिक', icon: '🍡', cat: 'personal', steps: ['1 Pack', '2 Pack'] },
+  { id: 'camphor', en: 'Camphor', te: 'కర్పూరం', hi: 'कपूर', icon: '🕯️', cat: 'personal', steps: ['50 g', '100 g', '250 g'] },
+  { id: 'aloe-vera-gel', en: 'Aloe Vera Gel', te: 'అలోవెరా జెల్', hi: 'एलोवेरा जेल', icon: '🌿', cat: 'personal', steps: ['100 ml', '200 ml', '500 ml'] },
+  { id: 'sandalwood', en: 'Sandalwood Paste', te: 'చందనం', hi: 'चंदन', icon: '🪵', cat: 'personal', steps: ['100 g', '250 g'] },
+  { id: 'vicco-turmeric', en: 'Vicco Turmeric', te: 'వికో టర్మరిక్', hi: 'विको टरमरिक', icon: '🫙', cat: 'personal', steps: ['1 Tube', '2 Tubes'] },
+  { id: 'diaper-pads', en: 'Diaper Pads', te: 'డైపర్ ప్యాడ్స్', hi: 'डायपर पैड', icon: '🧷', cat: 'personal', steps: ['1 Pack', '2 Pack'] },
+
+  /* ---- 🧹 Cleaning ---- */
+  { id: 'detergent', en: 'Detergent', te: 'డిటర్జెంట్', hi: 'डिटर्जेंट', icon: '🧴', cat: 'cleaning', steps: ['500 g', '1 Kg'] },
+  { id: 'liquid-detergent', en: 'Liquid Detergent', te: 'లిక్విడ్ డిటర్జెంట్', hi: 'लिक्विड डिटर्जेंट', icon: '🧴', cat: 'cleaning', steps: ['500 ml', '1 L', '2 L'] },
+  { id: 'floor-cleaner', en: 'Floor Cleaner', te: 'ఫ్లోర్ క్లీనర్', hi: 'फ्लोर क्लीनर', icon: '🧴', cat: 'cleaning', steps: ['500 ml', '1 L', '2 L'] },
+  { id: 'toilet-cleaner', en: 'Toilet Cleaner (Blue)', te: 'టాయిలెట్ క్లీనర్ (బ్లూ)', hi: 'टॉयलेट क्लीनर (ब्लू)', icon: '🚽', cat: 'cleaning', steps: ['500 ml', '1 L'] },
+  { id: 'tile-cleaner', en: 'Tile Cleaner (Red)', te: 'టైల్ క్లీనర్ (రెడ్)', hi: 'टाइल क्लीनर (रेड)', icon: '🧹', cat: 'cleaning', steps: ['500 ml', '1 L'] },
+  { id: 'eta-soaps', en: 'ETA Soaps', te: 'ఈటా సబ్బులు', hi: 'ईटा साबुन', icon: '🧼', cat: 'cleaning', steps: ['1 Pc', '2 Pc', '5 Pc'] },
+  { id: 'dish-wash', en: 'Dish Wash Soaps', te: 'డిష్ వాష్ సబ్బులు', hi: 'डिश वॉश साबुन', icon: '🧼', cat: 'cleaning', steps: ['1 Pc', '2 Pc', '5 Pc'] },
+  { id: 'scrubber', en: 'Scrubber', te: 'స్క్రబ్బర్', hi: 'स्क्रबर', icon: '🧽', cat: 'cleaning', steps: ['1 Pc', '2 Pc', '3 Pc'] },
+
+  /* ---- 🫖 Tea & Oils ---- */
+  { id: 'tea', en: 'Tea Powder', te: 'టీ పొడి', hi: 'चाय पत्ती', icon: '🍵', cat: 'oils', steps: ['100 g', '250 g', '500 g', '1 Kg'] },
+  { id: 'coffee', en: 'Coffee Powder', te: 'కాఫీ పొడి', hi: 'कॉफी पाउडर', icon: '☕', cat: 'oils', steps: ['100 g', '250 g', '500 g'] },
+  { id: 'cooking-oil', en: 'Cooking Oil', te: 'వంట నూనె', hi: 'खाने का तेल', icon: '🛢️', cat: 'oils', steps: ['200 ml', '500 ml', '1 L', '2 L', '5 L'] },
+  { id: 'sunflower-oil', en: 'Sunflower Oil', te: 'సన్ఫ్లవర్ ఆయిల్', hi: 'सनफ्लॉवर तेल', icon: '🌻', cat: 'oils', steps: ['200 ml', '500 ml', '1 L', '2 L', '5 L'] },
+  { id: 'groundnut-oil', en: 'Groundnut Oil', te: 'పల్లి నూనె', hi: 'मूंगफली का तेल', icon: '🛢️', cat: 'oils', steps: ['200 ml', '500 ml', '1 L', '2 L', '5 L'] },
+  { id: 'mustard-oil', en: 'Mustard Oil', te: 'ఆవాల నూనె', hi: 'सरसों का तेल', icon: '🛢️', cat: 'oils', steps: ['200 ml', '500 ml', '1 L'] },
+  { id: 'sesame-seeds', en: 'Sesame Seeds', te: 'ఎల్లి గింజలు', hi: 'तिल', icon: '🌰', cat: 'oils', steps: ['100 g', '250 g', '500 g'] },
+  { id: 'dry-nuts', en: 'Dry Nuts', te: 'డ్రై గింజలు', hi: 'सूखे मेवे', icon: '🥜', cat: 'oils', steps: ['100 g', '250 g', '500 g'] },
+  { id: 'creamy-milk', en: 'Creamy Milk', te: 'మీగడ పాలు', hi: 'मलाईदार दूध', icon: '🥛', cat: 'oils', steps: ['500 ml', '1 L'] },
+
+  /* ---- 🪔 Pooja Items ---- */
+  { id: 'agarbatti', en: 'Agarbatti', te: 'అగరబత్తి', hi: 'अगरबत्ती', icon: '🪔', cat: 'pooja', steps: ['1 Pack', '2 Pack'] },
+  { id: 'dhoop', en: 'Dhoop', te: 'దూపపు రప్పలు', hi: 'धूप', icon: '🪔', cat: 'pooja', steps: ['1 Pack', '2 Pack'] },
+  { id: 'kumkum', en: 'Kumkum', te: 'కుంకుమ', hi: 'कुमकुम', icon: '🔴', cat: 'pooja', steps: ['50 g', '100 g', '250 g'] },
+  { id: 'ganga-dabba', en: 'Ganga Dabba', te: 'గంగ డబ్బా', hi: 'गंगा डब्बा', icon: '🪔', cat: 'pooja', steps: ['1 Pc', '2 Pc'] },
+  { id: 'ganga-tailam', en: 'Ganga Tailam', te: 'గంగ తైలం', hi: 'गंगा तेल', icon: '🪔', cat: 'pooja', steps: ['1 Pc', '2 Pc'] },
+  { id: 'ganga-bottu', en: 'Ganga Bottu', te: 'గంగ బొట్టు', hi: 'गंगा बोट्टू', icon: '🔴', cat: 'pooja', steps: ['1 Pc', '2 Pc'] },
+  { id: 'ganga-pasupu', en: 'Ganga Pasupu', te: 'గంగ పసుపు', hi: 'गंगा हल्दी', icon: '🫙', cat: 'pooja', steps: ['1 Pc', '2 Pc'] },
+
+  /* ---- 📦 Other (fresh produce / snacks / misc) ---- */
+  { id: 'akola', en: 'Akola', te: 'అకోలా', hi: 'अकोला', icon: '📦', cat: 'other', steps: ['1 Pc', '2 Pc', '5 Pc'] },
+  { id: 'onion', en: 'Onion', te: 'ఉల్లిపాయ', hi: 'प्याज', icon: '🧅', cat: 'other', steps: ['250 g', '500 g', '1 Kg', '2 Kg', '5 Kg'] },
+  { id: 'tomato', en: 'Tomato', te: 'టమాటా', hi: 'टमाटर', icon: '🍅', cat: 'other', steps: ['250 g', '500 g', '1 Kg', '2 Kg'] },
+  { id: 'potato', en: 'Potato', te: 'బంగాళాదుంప', hi: 'आलू', icon: '🥔', cat: 'other', steps: ['250 g', '500 g', '1 Kg', '2 Kg', '5 Kg'] },
+  { id: 'eggs', en: 'Eggs', te: 'గుడ్లు', hi: 'अंडे', icon: '🥚', cat: 'other', steps: ['1 Pc'] },
+  { id: 'banana', en: 'Banana', te: 'అరటిపండు', hi: 'केला', icon: '🍌', cat: 'other', steps: ['1 Pc', '6 Pc', '12 Pc'] },
+  { id: 'chilli', en: 'Green Chilli', te: 'పచ్చిమిర్చి', hi: 'हरी मिर्च', icon: '🌶️', cat: 'other', steps: ['250 g', '500 g'] },
+  { id: 'coriander', en: 'Coriander', te: 'కొత్తిమీర', hi: 'धनिया', icon: '🌿', cat: 'other', steps: ['1 Bunch', '2 Bunch'] },
+  { id: 'ginger', en: 'Ginger', te: 'అల్లం', hi: 'अदरक', icon: '🫚', cat: 'other', steps: ['250 g', '500 g'] },
+  { id: 'garlic', en: 'Garlic', te: 'వెల్లుల్లి', hi: 'लहसुन', icon: '🧄', cat: 'other', steps: ['250 g', '500 g'] },
+  { id: 'lemon', en: 'Lemon', te: 'నిమ్మ', hi: 'नींबू', icon: '🍋', cat: 'other', steps: ['6 Pc', '12 Pc'] },
+  { id: 'carrot', en: 'Carrot', te: 'క్యారెట్', hi: 'गाजर', icon: '🥕', cat: 'other', steps: ['500 g', '1 Kg'] },
+  { id: 'beans', en: 'Beans', te: 'బీన్స్', hi: 'बीन्स', icon: '🫛', cat: 'other', steps: ['500 g', '1 Kg'] },
+  { id: 'cabbage', en: 'Cabbage', te: 'క్యాబేజీ', hi: 'पत्तागोभी', icon: '🥬', cat: 'other', steps: ['1 Pc', '2 Pc'] },
+  { id: 'cauliflower', en: 'Cauliflower', te: 'కాలీఫ్లవర్', hi: 'फूलगोभी', icon: '🥦', cat: 'other', steps: ['1 Pc', '2 Pc'] },
+  { id: 'apple', en: 'Apple', te: 'యాపిల్', hi: 'सेब', icon: '🍎', cat: 'other', steps: ['1 Kg', '2 Kg'] },
+  { id: 'mango', en: 'Mango', te: 'మామిడి', hi: 'आम', icon: '🥭', cat: 'other', steps: ['6 Pc', '12 Pc'] },
+  { id: 'coconut', en: 'Coconut', te: 'కొబ్బరికాయ', hi: 'नारियल', icon: '🥥', cat: 'other', steps: ['1 Pc', '2 Pc'] },
+  { id: 'snacks', en: 'Snacks', te: 'స్నాక్స్', hi: 'स्नैक्स', icon: '🥨', cat: 'other', steps: ['1 Pack', '2 Pack'] }
+];
+
+const GENERIC_STEPS = ['1 Pc', '2 Pc', '3 Pc', '5 Pc', '10 Pc', '250 g', '500 g', '1 Kg', '500 ml', '1 L'];
 
 const ITEM_ICONS = {
   banana:'🍌', apple:'🍎', orange:'🍊', grape:'🍇', strawberry:'🍓',
@@ -619,19 +1406,27 @@ const ITEM_ICONS = {
   watermelon:'🍉', mango:'🥭', pineapple:'🍍', coconut:'🥥',
   tomato:'🍅', broccoli:'🥦', carrot:'🥕', corn:'🌽',
   cucumber:'🥒', lettuce:'🥬', onion:'🧅', pepper:'🫑',
-  potato:'🥔', garlic:'🧄', mushroom:'🍄',
+  potato:'🥔', garlic:'🧄', mushroom:'🍄', ginger:'🫚',
   rice:'🍚', wheat:'🌾', flour:'🌾', bread:'🍞', pasta:'🍝',
   noodle:'🍜', cereal:'🥣', oat:'🥣', bean:'🫘', lentil:'🫘',
-  chickpea:'🫘', barley:'🌾', quinoa:'🌾',
-  milk:'🥛', water:'💧', juice:'🧃', oil:'🫒', sauce:'🥫',
+  dal:'🫘', chickpea:'🫘', barley:'🌾', quinoa:'🌾',
+  milk:'🥛', water:'💧', juice:'🧃', oil:'🛢️', sauce:'🥫',
   vinegar:'🍶', honey:'🍯', syrup:'🍯', cream:'🥛', soda:'🥤',
-  tea:'🍵', coffee:'☕',
+  tea:'🍵', coffee:'☕', powder:'🍵',
   cookie:'🍪', chocolate:'🍫', candy:'🍬', chips:'🥨',
   snack:'🥨', soup:'🥫', can:'🥫', cracker:'🍪',
   nut:'🥜', spice:'🧂', salt:'🧂', sugar:'🍬', jam:'🫙',
   butter:'🧈', cheese:'🧀', egg:'🥚', yogurt:'🫙',
-  default:'🛒'
+  shampoo:'🧴', conditioner:'🧴', soap:'🧼', toothpaste:'🪥',
+  toothbrush:'🪥', detergent:'🧴', default:'🛒'
 };
+
+const COMMON_ICONS = [
+  '🍚','🥛','🍞','🥚','🧅','🍅','🥔','🍬','🧂','🛢️','🫘','🌾',
+  '🍵','☕','🌶️','🧄','🫚','🥬','🍌','🍎','🥭','🍋','🍊','🍇',
+  '🍓','🥥','🧀','🧈','🧴','🧼','🪥','🍪','🍜','🥨','💧','🧃',
+  '🐟','🍗','🥩','🌽','🥒','🥕','🫛','🍯','🫙','🍫','🛒'
+];
 
 const BG_ITEMS = [
   '🍌','🍎','🍊','🍇','🍓','🍑','🥝','🍋','🍉','🥭',
@@ -641,39 +1436,1492 @@ const BG_ITEMS = [
   '🍪','🍫','🧀','🥚','🧈','🥫','🥜'
 ];
 
-let items = [];
-let removedItems = [];
+const SVG_PLUS = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>';
+const SVG_MINUS = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 13H5v-2h14v2z"/></svg>';
+const SVG_EDIT = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>';
+const SVG_DEL = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>';
 
-document.addEventListener('DOMContentLoaded', () => {
-  loadFromStorage();
-  renderItems();
-  updateUnits();
-  populateBackground();
-  document.getElementById('itemInput').addEventListener('keydown', e => {
-    if (e.key === 'Enter') addItem();
+/* ==================== State ==================== */
+
+let lang = localStorage.getItem('grocery_lang') || 'en';
+let items = [];
+let currentListId = null;
+let currentTab = 'home';
+let pendingQuickId = null;
+let pendingQuickSub = -1;
+let pendingAdd = null;
+let confirmCb = null;
+let customSteps = ['1 Pc'];
+
+/* ==================== i18n ==================== */
+
+function t(key) {
+  const e = I18N[key];
+  return e ? (e[lang] || e.en || key) : key;
+}
+
+function setLang(l) {
+  if (!LANGUAGES[l]) return;
+  lang = l;
+  localStorage.setItem('grocery_lang', l);
+  renderI18n();
+  renderMasterGrid();
+  renderCart();
+  renderSavedLists();
+  renderManageGrid();
+  renderProfileLang();
+  showToast(LANGUAGES[l]);
+}
+
+function renderI18n() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    el.textContent = t(el.dataset.i18n);
   });
-  document.getElementById('savedListsModal').addEventListener('click', e => {
-    if (e.target === e.currentTarget) closeSavedLists();
-  });
-  document.getElementById('editModal').addEventListener('click', e => {
-    if (e.target === e.currentTarget) closeEditModal();
-  });
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') { closeSavedLists(); closeEditModal(); }
-  });
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('service-worker.js').catch(() => {});
+  document.getElementById('searchInput').placeholder = t('search');
+  document.getElementById('trendsNote').textContent = t('trendsNote') + ' · ' + getHistory().length + ' ' + t('savedHistory');
+  document.getElementById('aboutText').textContent = t('aboutText');
+  if (document.getElementById('statsContent')) renderProfileStats();
+  updateHeader();
+}
+
+function updateHeader() {
+  const emoji = currentTab === 'home' ? '🛒' : (currentTab === 'saved' ? '🕒' : '👤');
+  const text = currentTab === 'home' ? t('appName') : t(currentTab === 'saved' ? 'savedLists' : 'myProfile');
+  document.getElementById('headerTitle').innerHTML = `<span>${emoji}</span> ${escapeHtml(text)}`;
+}
+
+/* ==================== Storage / helpers ==================== */
+
+function uid() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+}
+
+function slug(name) {
+  return String(name).toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || ('item-' + uid());
+}
+
+function prettify(name) {
+  return name.trim().replace(/\s+/g, ' ').replace(/^./, c => c.toUpperCase());
+}
+
+function clone(o) { return JSON.parse(JSON.stringify(o)); }
+
+function haptic(ms) {
+  if (navigator.vibrate) {
+    try { navigator.vibrate(ms || 10); } catch(e) {}
   }
-});
+}
+
+const MASTER_VERSION = 4;
+
+function getMaster() {
+  try {
+    const raw = localStorage.getItem('grocery_master');
+    const ver = parseInt(localStorage.getItem('grocery_master_v') || '0', 10);
+    if (raw) {
+      const m = JSON.parse(raw);
+      if (Array.isArray(m) && m.length) {
+        const migrated = migrateMaster(m);
+        if (ver < MASTER_VERSION) {
+          const merged = mergeDefaults(migrated);
+          localStorage.setItem('grocery_master', JSON.stringify(merged));
+          localStorage.setItem('grocery_master_v', String(MASTER_VERSION));
+          return merged;
+        }
+        return migrated;
+      }
+    }
+  } catch(e) {}
+  const seed = clone(DEFAULT_MASTER);
+  localStorage.setItem('grocery_master', JSON.stringify(seed));
+  localStorage.setItem('grocery_master_v', String(MASTER_VERSION));
+  return seed;
+}
+
+function mergeDefaults(m) {
+  const defaultIds = {};
+  DEFAULT_MASTER.forEach(d => { defaultIds[d.id] = d; });
+  const removedBuiltin = { dal: true };
+  const out = [];
+  m.forEach(x => {
+    if (removedBuiltin[x.id]) return;
+    if (defaultIds[x.id]) out.push(x);
+    else out.push({ ...x, custom: true });
+  });
+  const seen = {};
+  out.forEach(x => { seen[x.id] = true; });
+  DEFAULT_MASTER.forEach(def => {
+    if (seen[def.id]) {
+      const item = out.find(x => x.id === def.id);
+      if (!item.custom) {
+        item.steps = def.steps;
+        item.cat = def.cat;
+        if (def.subs) item.subs = def.subs; else delete item.subs;
+      }
+    } else {
+      out.push(clone(def));
+    }
+  });
+  return out;
+}
+
+function migrateMaster(m) {
+  return m.map(x => {
+    if (x.id) {
+      const def = DEFAULT_MASTER.find(d => d.id === x.id);
+      if (def && !x.custom) {
+        return { ...x, cat: def.cat };
+      }
+      return { ...x, cat: x.cat || 'other' };
+    }
+    const norm = String(x.name || '').trim().toLowerCase();
+    const def = DEFAULT_MASTER.find(d => d.en.toLowerCase() === norm);
+    if (def) return { ...def, steps: (x.steps && x.steps.length) ? x.steps : def.steps };
+    return {
+      id: slug(x.name || 'item'),
+      en: x.name || 'Item',
+      te: x.telugu || undefined,
+      hi: undefined,
+      icon: x.icon || getIcon(x.name || ''),
+      steps: (x.steps && x.steps.length) ? x.steps : ['1 Pc'],
+      cat: 'other'
+    };
+  });
+}
+
+function setMaster(master) {
+  localStorage.setItem('grocery_master', JSON.stringify(master));
+}
+
+function saveCart() {
+  localStorage.setItem('grocery_cart', JSON.stringify({ items }));
+}
+
+function getSavedLists() {
+  try { return JSON.parse(localStorage.getItem('grocery_lists') || '[]'); }
+  catch(e) { return []; }
+}
+
+function setSavedLists(lists) {
+  localStorage.setItem('grocery_lists', JSON.stringify(lists.slice(0, 30)));
+}
+
+function getHistory() {
+  try { return JSON.parse(localStorage.getItem('grocery_history') || '[]'); }
+  catch(e) { return []; }
+}
+
+function setHistory(h) {
+  localStorage.setItem('grocery_history', JSON.stringify(h.slice(0, 200)));
+}
+
+function normalizeUnit(u) {
+  const s = String(u).toLowerCase();
+  if (s === 'kg') return 'Kg';
+  if (s === 'g' || s === 'gm' || s === 'grams') return 'g';
+  if (s === 'l' || s === 'ltr' || s === 'liters' || s === 'litre') return 'L';
+  if (s === 'ml' || s === 'mls' || s === 'milliliters') return 'ml';
+  if (s === 'pc' || s === 'pcs') return 'Pc';
+  if (s === 'piece' || s === 'pieces') return 'Piece';
+  if (s === 'dozen' || s === 'dozens') return 'Dozen';
+  if (s === 'pack' || s === 'packs') return 'Pack';
+  if (s === 'packet' || s === 'packets') return 'Packet';
+  if (s === 'bunch' || s === 'bunches') return 'Bunch';
+  if (s === 'bottle' || s === 'bottles') return 'Bottle';
+  if (s === 'sachet' || s === 'sachets') return 'Sachet';
+  if (s === 'tube' || s === 'tubes') return 'Tube';
+  return u || 'Pc';
+}
+
+function parseStep(label) {
+  const m = String(label).trim().match(/^([\d.]+)\s*([A-Za-z]+)$/);
+  if (m) return { value: parseFloat(m[1]), unit: normalizeUnit(m[2]) };
+  const n = parseFloat(String(label).trim());
+  if (!isNaN(n) && n > 0) return { value: n, unit: 'Pc' };
+  return { value: 1, unit: 'Pc' };
+}
+
+function toBaseUnit(unit) {
+  const u = normalizeUnit(unit);
+  if (u === 'Kg') return { unit: 'g', factor: 1000 };
+  if (u === 'L') return { unit: 'ml', factor: 1000 };
+  if (u === 'Dozen') return { unit: 'Pc', factor: 12 };
+  return { unit: u, factor: 1 };
+}
+
+const PLURAL_UNITS = {
+  Pc: 'Pcs', Piece: 'Pieces', Packet: 'Packets', Tube: 'Tubes',
+  Bottle: 'Bottles', Sachet: 'Sachets', Pack: 'Packs', Bunch: 'Bunches'
+};
+
+function formatQty(item) {
+  let val = item.stepValue * item.count;
+  let unit = item.stepUnit;
+  if (unit === 'g' && val >= 1000) { val = val / 1000; unit = 'Kg'; }
+  if (unit === 'ml' && val >= 1000) { val = val / 1000; unit = 'L'; }
+  val = Math.round(val * 100) / 100;
+  const u = (val > 1 && PLURAL_UNITS[unit]) ? PLURAL_UNITS[unit] : unit;
+  return val + ' ' + u;
+}
+
+/* ==================== Names ==================== */
+
+function itemName(m) {
+  const n = m[lang];
+  if (n && String(n).trim()) return n;
+  return m.en || m.id || '';
+}
+
+function cartName(item) {
+  if (item.id) {
+    const m = getMaster().find(x => x.id === item.id);
+    if (m) return itemName(m);
+  }
+  return item.en || item.name || 'Item';
+}
+
+function cartKey(item) {
+  if (item.id && !item.custom) return 'id:' + item.id;
+  return 'nm:' + String(item.en || item.name || '').toLowerCase().trim();
+}
+
+/* ==================== View switching ==================== */
+
+function switchView(v) {
+  currentTab = v;
+  document.querySelectorAll('.view').forEach(el => el.classList.toggle('active', el.id === 'view-' + v));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.view === v));
+  document.getElementById('headerActions').style.display = (v === 'home') ? 'flex' : 'none';
+  document.getElementById('fabAdd').style.display = (v === 'home') ? 'flex' : 'none';
+  updateHeader();
+  if (v === 'saved') renderSavedLists();
+  if (v === 'profile') { renderProfileLang(); renderProfileStats(); }
+}
+
+/* ==================== Master grid + search ==================== */
+
+function normText(s) {
+  return String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
+function fuzzyScore(q, s) {
+  const text = normText(s);
+  if (!text) return -1;
+  const qi = normText(q);
+  if (!qi) return 0;
+  if (text.includes(qi)) return 1000 + (qi.length / Math.max(text.length, 1));
+  let qiIdx = 0;
+  for (let i = 0; i < text.length && qiIdx < qi.length; i++) {
+    if (text[i] === qi[qiIdx]) qiIdx++;
+  }
+  if (qiIdx < qi.length) return -1;
+  return 100 + (qi.length / Math.max(text.length, 1));
+}
+
+function filterMaster(q) {
+  q = (q || '').trim();
+  const master = getMaster();
+  if (!q) return master;
+  const scored = [];
+  master.forEach(m => {
+    const s = Math.max(
+      fuzzyScore(q, m.en),
+      fuzzyScore(q, m.te),
+      fuzzyScore(q, m.hi),
+      fuzzyScore(q, m.id),
+      fuzzyScore(q, (m.en || '') + ' ' + (m.te || ''))
+    );
+    if (s > 0) scored.push({ m, s });
+  });
+  scored.sort((a, b) => b.s - a.s);
+  return scored.map(x => x.m);
+}
+
+function getCollapsedCats() {
+  try { return JSON.parse(localStorage.getItem('grocery_cats') || '[]'); }
+  catch(e) { return []; }
+}
+
+function toggleCat(id) {
+  const arr = getCollapsedCats();
+  const i = arr.indexOf(id);
+  if (i !== -1) arr.splice(i, 1); else arr.push(id);
+  localStorage.setItem('grocery_cats', JSON.stringify(arr));
+  const sec = document.getElementById('cat_' + id);
+  if (sec) sec.classList.toggle('collapsed', arr.includes(id));
+}
+
+function renderMasterGrid(q) {
+  if (q == null) q = document.getElementById('searchInput').value || '';
+  const master = filterMaster(q);
+  const el = document.getElementById('masterGrid');
+  if (!master.length) {
+    el.innerHTML = `<div class="no-result">
+      <div class="nr-icon">🔍</div>
+      <div class="nr-text">${escapeHtml(t('noSearchResults'))}</div>
+      <button class="btn btn-primary" onclick="addCustomFromSearch()">➕ ${escapeHtml(t('addCustomSearch'))}</button>
+    </div>`;
+    return;
+  }
+  const searching = !!q.trim();
+  const groups = {};
+  master.forEach(m => {
+    const c = CATEGORIES[m.cat] ? m.cat : 'other';
+    const s = searching
+      ? Math.max(fuzzyScore(q, m.en), fuzzyScore(q, m.te), fuzzyScore(q, m.hi), fuzzyScore(q, m.id))
+      : 0;
+    (groups[c] = groups[c] || []).push({ m, s });
+  });
+  let order = CAT_ORDER.filter(c => groups[c]);
+  if (searching) {
+    order = order
+      .map(c => ({ c, best: Math.max.apply(null, groups[c].map(x => x.s)) }))
+      .sort((a, b) => b.best - a.best)
+      .map(o => o.c);
+  }
+  const collapsed = getCollapsedCats();
+  el.innerHTML = order.map(c => {
+    const list = groups[c];
+    const isCollapsed = !searching && collapsed.includes(c);
+    return `<div class="cat-section${isCollapsed ? ' collapsed' : ''}" id="cat_${c}">
+      <button class="cat-header" onclick="toggleCat('${c}')">
+        <span class="cat-ico">${CATEGORIES[c].icon}</span>
+        <span class="cat-name">${escapeHtml(catName(c))}</span>
+        <span class="cat-count">${list.length}</span>
+        <span class="cat-chev">▼</span>
+      </button>
+      <div class="cat-body">
+        <div class="master-grid">${list.map(x => `
+          <button class="master-tile" data-id="${escapeAttr(x.m.id)}">
+            <span class="mt-icon">${x.m.icon}</span>
+            <span class="mt-name">${escapeHtml(itemName(x.m))}</span>
+          </button>`).join('')}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function addCustomFromSearch() {
+  openCustomModal(null, document.getElementById('searchInput').value.trim());
+}
+
+/* ==================== Quick add ==================== */
+
+function openQuickAdd(id) {
+  const m = getMaster().find(x => x.id === id);
+  if (!m) return;
+  pendingQuickId = id;
+  document.getElementById('qaIcon').textContent = m.icon;
+  document.getElementById('qaName').textContent = itemName(m);
+  const subTabs = document.getElementById('qaSubTabs');
+  if (m.subs && m.subs.length) {
+    pendingQuickSub = 0;
+    renderSubTabs(m);
+    renderQaSteps(m.subs[0].steps);
+    subTabs.style.display = 'flex';
+  } else {
+    pendingQuickSub = -1;
+    subTabs.style.display = 'none';
+    const steps = (m.steps && m.steps.length) ? m.steps : GENERIC_STEPS.slice(0, 3);
+    renderQaSteps(steps);
+  }
+  openModal('quickAddModal');
+}
+
+function renderSubTabs(m) {
+  document.getElementById('qaSubTabs').innerHTML = m.subs.map((s, i) =>
+    `<button class="qa-subtab${i === pendingQuickSub ? ' active' : ''}" data-sub="${i}">${escapeHtml(s.label)}</button>`).join('');
+}
+
+function renderQaSteps(steps) {
+  document.getElementById('qaSteps').innerHTML = steps.map(s =>
+    `<button class="qa-step" data-step="${escapeAttr(s)}">${escapeHtml(s)}</button>`).join('');
+}
+
+function makeCartItem(m, step) {
+  return { id: m.id, en: m.en, icon: m.icon, stepValue: step.value, stepUnit: step.unit, count: 1, done: false, note: '', fav: false };
+}
+
+function addItemByMaster(id, stepLabel) {
+  const m = getMaster().find(x => x.id === id);
+  if (!m) return;
+  haptic();
+  const step = parseStep(stepLabel);
+  closeModal('quickAddModal');
+  const existing = items.find(i => i.id === id);
+
+  if (existing) {
+    const eBase = toBaseUnit(existing.stepUnit);
+    const sBase = toBaseUnit(step.unit);
+    if (eBase.unit === sBase.unit) {
+      const total = existing.stepValue * existing.count * eBase.factor + step.value * sBase.factor;
+      const perStep = step.value * sBase.factor;
+      existing.stepUnit = step.unit;
+      existing.stepValue = step.value;
+      existing.count = Math.max(1, Math.round(total / perStep * 100) / 100);
+    } else {
+      items.push(makeCartItem(m, step));
+      saveCart();
+      renderCart();
+      showToast('+ ' + itemName(m));
+      return;
+    }
+    saveCart();
+    renderCart();
+    pulseQty(existing.id);
+    showToast('+ ' + itemName(m) + ' · ' + formatQty(existing));
+  } else {
+    items.push(makeCartItem(m, step));
+    saveCart();
+    renderCart();
+    markAdded(items[items.length - 1].id);
+    showToast('+ ' + itemName(m) + ' · ' + formatQty(items[items.length - 1]));
+  }
+}
+
+function markAdded(id) {
+  const card = document.querySelector(`.item-card[data-id="${id}"]`);
+  if (card) card.classList.add('just-added');
+}
+
+/* ==================== Cart render ==================== */
+
+function sortCartItems(arr) {
+  return arr.slice().sort((a, b) => {
+    const ad = a.done ? 1 : 0, bd = b.done ? 1 : 0;
+    if (ad !== bd) return ad - bd;
+    const af = a.fav ? 0 : 1, bf = b.fav ? 0 : 1;
+    if (af !== bf) return af - bf;
+    return 0;
+  });
+}
+
+function renderCart() {
+  const list = document.getElementById('itemsList');
+
+  if (items.length === 0) {
+    list.innerHTML = `<li class="empty-state">
+      <div class="icon">🛒</div>
+      <p>${escapeHtml(t('emptyCart'))}</p>
+      <p class="hint">${escapeHtml(t('tapItemHint'))}</p>
+    </li>`;
+  } else {
+    list.innerHTML = sortCartItems(items).map(item => `
+      <li class="item-card${item.done ? ' purchased' : ''}" data-id="${escapeAttr(item.id)}">
+        <input type="checkbox" class="item-check" ${item.done ? 'checked' : ''} onchange="toggleDone('${escapeAttr(item.id)}')" aria-label="purchased">
+        <span class="item-icon">${item.icon}</span>
+        <div class="item-info">
+          <div class="item-name-row">
+            <span class="item-name">${escapeHtml(cartName(item))}</span>
+            <button class="fav-btn${item.fav ? ' on' : ''}" onclick="toggleFav('${escapeAttr(item.id)}')" title="Favourite">${item.fav ? '⭐' : '☆'}</button>
+          </div>
+          ${item.note ? `<div class="item-note"><span class="note-label">📝</span> ${escapeHtml(item.note)}</div>` : ''}
+        </div>
+        <div class="stepper">
+          <button class="step-btn" onclick="changeQty('${escapeAttr(item.id)}', -1)" title="-" ${item.count <= 1 ? 'disabled' : ''}>${SVG_MINUS}</button>
+          <span class="step-val" id="val_${escapeAttr(item.id)}">${formatQty(item)}</span>
+          <button class="step-btn" onclick="changeQty('${escapeAttr(item.id)}', 1)" title="+">${SVG_PLUS}</button>
+        </div>
+        <div class="item-actions">
+          <button class="item-btn edit-btn" onclick="openNote('${escapeAttr(item.id)}')" title="Note">📝</button>
+          <button class="item-btn edit-btn" onclick="editItem('${escapeAttr(item.id)}')" title="Edit">${SVG_EDIT}</button>
+          <button class="item-btn del-btn" onclick="removeItem('${escapeAttr(item.id)}')" title="Delete">${SVG_DEL}</button>
+        </div>
+      </li>`).join('');
+  }
+
+  document.getElementById('totalCount').textContent = items.length;
+  renderContinueBanner();
+}
+
+function toggleDone(id) {
+  haptic();
+  const item = items.find(i => i.id === id);
+  if (!item) return;
+  item.done = !item.done;
+  saveCart();
+  renderCart();
+  showToast(item.done ? '✅ ' + cartName(item) + ' · ' + t('purchased') : '↩️ ' + cartName(item) + ' · ' + t('restore'));
+}
+
+function toggleFav(id) {
+  haptic();
+  const item = items.find(i => i.id === id);
+  if (!item) return;
+  item.fav = !item.fav;
+  saveCart();
+  renderCart();
+  showToast(item.fav ? '⭐ ' + t('favAdded') : t('favRemoved'));
+}
+
+function openNote(id) {
+  const item = items.find(i => i.id === id);
+  if (!item) return;
+  document.getElementById('noteItemId').value = id;
+  document.getElementById('noteText').value = item.note || '';
+  openModal('noteModal');
+}
+
+function saveNote() {
+  const id = document.getElementById('noteItemId').value;
+  const item = items.find(i => i.id === id);
+  if (!item) return;
+  item.note = document.getElementById('noteText').value.trim();
+  saveCart();
+  renderCart();
+  closeModal('noteModal');
+  showToast('📝 ' + t('noteSaved'));
+}
+
+function clearNote() {
+  const id = document.getElementById('noteItemId').value;
+  const item = items.find(i => i.id === id);
+  if (item) {
+    item.note = '';
+    saveCart();
+    renderCart();
+  }
+  closeModal('noteModal');
+  showToast(t('noteRemoved'));
+}
+
+function renderContinueBanner() {
+  const lists = getSavedLists();
+  const banner = document.getElementById('continueBanner');
+  if (items.length === 0 && lists.length) {
+    banner.style.display = 'flex';
+    document.getElementById('cbTitle').textContent = t('continue') + ' ' + lists[0].name;
+    document.getElementById('cbSub').textContent = lists[0].items.length + ' ' + t('totalItems');
+  } else {
+    banner.style.display = 'none';
+  }
+}
+
+function changeQty(id, delta) {
+  const item = items.find(i => i.id === id);
+  if (!item) return;
+  const nc = item.count + delta;
+  if (nc < 1) return;
+  haptic(8);
+  item.count = nc;
+  saveCart();
+  renderCart();
+  pulseQty(id);
+}
+
+function pulseQty(id) {
+  const el = document.getElementById('val_' + id);
+  if (!el) return;
+  el.classList.remove('pulse');
+  void el.offsetWidth;
+  el.classList.add('pulse');
+}
+
+function removeItem(id) {
+  const item = items.find(i => i.id === id);
+  if (!item) return;
+  haptic();
+  const idx = items.indexOf(item);
+  const card = document.querySelector(`.item-card[data-id="${id}"]`);
+  const done = () => {
+    items = items.filter(i => i.id !== id);
+    saveCart();
+    renderCart();
+    showToast('🗑 ' + cartName(item) + ' · ' + t('itemDeleted'), () => undoDelete(item, idx));
+  };
+  if (card) {
+    card.classList.add('leaving');
+    setTimeout(done, 180);
+  } else done();
+}
+
+function undoDelete(item, idx) {
+  items.splice(Math.min(idx, items.length), 0, item);
+  saveCart();
+  renderCart();
+  showToast('↩️ ' + t('undoDeleted'));
+}
+
+/* ==================== Edit cart item ==================== */
+
+function editItem(id) {
+  const item = items.find(i => i.id === id);
+  if (!item) return;
+  let val = item.stepValue * item.count;
+  let unit = item.stepUnit;
+  if (unit === 'g' && val >= 1000) { val = val / 1000; unit = 'Kg'; }
+  if (unit === 'ml' && val >= 1000) { val = val / 1000; unit = 'L'; }
+
+  document.getElementById('editItemId').value = id;
+  document.getElementById('editName').value = item.en || item.name || cartName(item);
+  document.getElementById('editQty').value = val;
+  document.getElementById('editUnit').value = unit;
+  openModal('editModal');
+}
+
+function saveEditedItem(e) {
+  e.preventDefault();
+  const id = document.getElementById('editItemId').value;
+  const item = items.find(i => i.id === id);
+  if (!item) return;
+  const name = prettify(document.getElementById('editName').value);
+  const m = item.id ? getMaster().find(x => x.id === item.id) : null;
+  item.en = name;
+  if (!m || (m.en || '').toLowerCase() !== name.toLowerCase()) {
+    item.id = 'c' + uid();
+    item.custom = true;
+  }
+  item.icon = getIcon(name);
+  item.stepValue = parseFloat(document.getElementById('editQty').value) || 1;
+  item.stepUnit = normalizeUnit(document.getElementById('editUnit').value);
+  item.count = 1;
+  saveCart();
+  renderCart();
+  closeModal('editModal');
+  showToast('✅ ' + t('editItem'));
+}
+
+/* ==================== Saved lists ==================== */
+
+function defaultListName() {
+  try {
+    return new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
+  } catch(e) {
+    return new Date().toDateString();
+  }
+}
+
+function listFingerprint(listItems) {
+  return listItems
+    .map(i => {
+      const base = toBaseUnit(i.stepUnit);
+      const value = Math.round(i.stepValue * i.count * base.factor * 100) / 100;
+      return { name: String(i.en || i.name || '').trim().toLowerCase(), unit: base.unit, value };
+    })
+    .sort((a, b) => a.name.localeCompare(b.name) || a.unit.localeCompare(b.unit) || a.value - b.value)
+    .map(e => `${e.name}|${e.unit}|${e.value}`)
+    .join(';;');
+}
+
+function findList(listId) {
+  return getSavedLists().find(l => l.id === listId);
+}
+
+function renderSavedLists() {
+  const lists = getSavedLists();
+  const el = document.getElementById('savedListsContent');
+
+  if (lists.length === 0) {
+    el.innerHTML = `<div class="empty-state">
+      <div class="icon">🕒</div>
+      <p>${escapeHtml(t('noSavedLists'))}</p>
+      <p class="hint">${escapeHtml(t('hintSave'))}</p>
+    </div>`;
+    return;
+  }
+
+  el.innerHTML = lists.map(list => `
+    <div class="saved-list-card">
+      <div class="list-top">
+        <span class="list-name">🛒 ${escapeHtml(list.name)}</span>
+        <span class="badge">📦 ${list.items.length}</span>
+      </div>
+      <div class="list-meta">
+        <div>📅 ${escapeHtml(t('created'))}: ${escapeHtml(list.createdDate || list.date)} · ${escapeHtml(list.createdTime || list.time)}</div>
+        <div>🕒 ${escapeHtml(t('lastModified'))}: ${escapeHtml(list.date)} · ${escapeHtml(list.time)}</div>
+      </div>
+      <div class="sla-row">
+        <button class="sla-icon-btn" onclick="openSavedList('${escapeAttr(list.id)}')" title="${escapeHtml(t('continueEditing'))}">✏️ <span>${escapeHtml(t('continueEditing'))}</span></button>
+        <button class="sla-icon-btn" onclick="addSavedToCart('${escapeAttr(list.id)}')" title="${escapeHtml(t('addToCart'))}">➕ <span>${escapeHtml(t('addToCart'))}</span></button>
+        <button class="sla-icon-btn" onclick="renameList('${escapeAttr(list.id)}')" title="${escapeHtml(t('renameList'))}">🖊 <span>${escapeHtml(t('renameList'))}</span></button>
+        <button class="sla-icon-btn danger" onclick="deleteList('${escapeAttr(list.id)}')" title="${escapeHtml(t('delete'))}">🗑</button>
+      </div>
+    </div>`).join('');
+}
+
+function saveCurrentList() {
+  if (items.length === 0) { showToast(t('addItemsFirst')); return; }
+  const existing = currentListId ? findList(currentListId) : null;
+  document.getElementById('nameModalTitle').textContent = t('saveList');
+  document.getElementById('nameInput').value = existing ? existing.name : defaultListName();
+  openModal('nameModal');
+}
+
+function confirmSaveList() {
+  let name = document.getElementById('nameInput').value.trim();
+  if (!name) name = defaultListName();
+
+  if (pendingRenameId) {
+    const id = pendingRenameId;
+    pendingRenameId = null;
+    const lists = getSavedLists();
+    const idx = lists.findIndex(l => l.id === id);
+    if (idx !== -1) {
+      lists[idx].name = name;
+      setSavedLists(lists);
+      const h = getHistory();
+      const hIdx = h.findIndex(x => x.id === id);
+      if (hIdx !== -1) { h[hIdx].name = name; setHistory(h); }
+      closeModal('nameModal');
+      renderSavedLists();
+      showToast('🖊 ' + t('renamedList'));
+    } else {
+      closeModal('nameModal');
+    }
+    return;
+  }
+
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-GB');
+  const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const month = now.toISOString().slice(0, 7);
+  const year = String(now.getFullYear());
+
+  const snapshot = clone(items);
+  const fp = listFingerprint(snapshot);
+  let lists = getSavedLists();
+
+  if (currentListId) {
+    const idx = lists.findIndex(l => l.id === currentListId);
+    if (idx !== -1) {
+      const existing = lists[idx];
+      if (listFingerprint(existing.items) === fp) {
+        closeModal('nameModal');
+        showToast(t('alreadySaved'));
+        return;
+      }
+      lists[idx] = {
+        ...existing,
+        name,
+        date: dateStr,
+        time: timeStr,
+        timestamp: dateStr + ' · ' + timeStr,
+        month,
+        year,
+        items: snapshot
+      };
+      setSavedLists(lists);
+      updateHistory(currentListId, name, dateStr, timeStr, month, year, snapshot);
+      closeModal('nameModal');
+      renderCart();
+      renderSavedLists();
+      showToast(t('updatedSuccess'));
+      return;
+    }
+    currentListId = null;
+  }
+
+  const dup = lists.find(l => listFingerprint(l.items) === fp);
+  if (dup) {
+    currentListId = dup.id;
+    closeModal('nameModal');
+    showToast(t('alreadySaved'));
+    return;
+  }
+
+  const list = {
+    id: uid(),
+    name,
+    date: dateStr,
+    time: timeStr,
+    timestamp: dateStr + ' · ' + timeStr,
+    month,
+    year,
+    createdDate: dateStr,
+    createdTime: timeStr,
+    items: snapshot
+  };
+  lists.unshift(list);
+  setSavedLists(lists);
+  updateHistory(list.id, name, dateStr, timeStr, month, year, snapshot);
+  currentListId = list.id;
+  closeModal('nameModal');
+  renderCart();
+  renderSavedLists();
+  showToast(t('listSaved'));
+}
+
+function updateHistory(id, name, dateStr, timeStr, month, year, snapshot) {
+  const h = getHistory();
+  const idx = h.findIndex(x => x.id === id);
+  const entry = {
+    id, name, date: dateStr, time: timeStr, month, year,
+    timestamp: dateStr + ' · ' + timeStr,
+    items: snapshot.map(i => ({
+      id: i.id || null,
+      name: i.en || i.name,
+      icon: i.icon,
+      qty: formatQty(i),
+      value: Math.round(i.stepValue * i.count * 100) / 100,
+      unit: i.stepUnit
+    }))
+  };
+  if (idx !== -1) h[idx] = entry; else h.unshift(entry);
+  setHistory(h);
+}
+
+function openSavedList(listId) {
+  const list = findList(listId);
+  if (!list) { showToast(t('noSaved')); return; }
+  const doOpen = () => {
+    items = clone(list.items);
+    currentListId = list.id;
+    saveCart();
+    renderCart();
+    switchView('home');
+    showToast('✏️ ' + list.name);
+  };
+  if (items.length > 0) askConfirm(t('replaceListQ'), doOpen, false);
+  else doOpen();
+}
+
+function deleteList(listId) {
+  askConfirm(t('deleteConfirm'), () => {
+    let lists = getSavedLists();
+    lists = lists.filter(l => l.id !== listId);
+    setSavedLists(lists);
+    if (currentListId === listId) currentListId = null;
+    renderSavedLists();
+    renderContinueBanner();
+    showToast('🗑 ' + t('listDeleted'));
+  }, true);
+}
+
+let pendingRenameId = null;
+
+function renameList(listId) {
+  const list = findList(listId);
+  if (!list) return;
+  pendingRenameId = listId;
+  document.getElementById('nameInput').value = list.name;
+  document.getElementById('nameModalTitle').textContent = t('renameTitle');
+  openModal('nameModal');
+}
+
+/* ==================== Add saved to cart + merge ==================== */
+
+function addSavedToCart(listId) {
+  const list = findList(listId);
+  if (!list) { showToast(t('noSaved')); return; }
+  const savedItems = clone(list.items);
+
+  if (items.length === 0) {
+    items = clone(savedItems);
+    saveCart();
+    renderCart();
+    switchView('home');
+    showToast('📋 ' + t('listAdded'));
+    return;
+  }
+
+  pendingAdd = { savedItems };
+  document.getElementById('mchMsg').textContent = t('mergeQ');
+  openModal('mergeChoiceModal');
+}
+
+function mergeChoice(mode) {
+  if (!pendingAdd) return;
+  const savedItems = pendingAdd.savedItems;
+  pendingAdd = null;
+  closeModal('mergeChoiceModal');
+
+  if (mode === 'replace') {
+    items = clone(savedItems);
+    currentListId = null;
+    saveCart();
+    renderCart();
+    switchView('home');
+    showToast(t('cartReplaced'));
+    return;
+  }
+
+  mergeSavedItems(savedItems);
+}
+
+function mergeSavedItems(savedItems) {
+  const newOnes = [];
+  for (const s of savedItems) {
+    const ex = items.find(i => cartKey(i) === cartKey(s));
+    if (ex) mergeIncrease(ex, s);
+    else newOnes.push(s);
+  }
+  if (newOnes.length) items = items.concat(clone(newOnes));
+  saveCart();
+  renderCart();
+  switchView('home');
+  showToast('📋 ' + t('listAdded'));
+}
+
+function mergeIncrease(existing, saved) {
+  const eBase = toBaseUnit(existing.stepUnit);
+  const sBase = toBaseUnit(saved.stepUnit);
+  if (eBase.unit !== sBase.unit) return false;
+  const total = existing.stepValue * existing.count * eBase.factor + saved.stepValue * saved.count * sBase.factor;
+  const perStep = existing.stepValue * eBase.factor;
+  existing.count = Math.max(1, Math.round(total / perStep * 100) / 100);
+  return true;
+}
+
+/* ==================== Monthly workflow ==================== */
+
+function continueLastMonth() {
+  const lists = getSavedLists();
+  if (lists.length === 0) { showToast(t('noSavedLists')); return; }
+  addSavedToCart(lists[0].id);
+}
+
+function copyPreviousList() {
+  const lists = getSavedLists();
+  if (lists.length === 0) { showToast(t('noSavedLists')); return; }
+  const source = lists[0];
+  const doCopy = () => {
+    items = clone(source.items);
+    currentListId = null;
+    saveCart();
+    renderCart();
+    switchView('home');
+    showToast('📋 ' + t('copiedList'));
+  };
+  if (items.length > 0) askConfirm(t('replaceCartConfirm'), doCopy, false);
+  else doCopy();
+}
+
+function startNewList() {
+  if (items.length === 0) { showToast(t('listEmpty')); return; }
+  askConfirm(t('startNewConfirm'), () => {
+    items = [];
+    currentListId = null;
+    saveCart();
+    renderCart();
+    switchView('home');
+    showToast('🆕 ' + t('newList'));
+  }, false);
+}
+
+/* ==================== Manage master list ==================== */
+
+function openMasterModal() {
+  renderManageGrid();
+  openModal('manageModal');
+}
+
+function renderManageGrid() {
+  const master = getMaster();
+  const el = document.getElementById('manageGrid');
+  const groups = {};
+  master.forEach(m => {
+    const c = CATEGORIES[m.cat] ? m.cat : 'other';
+    (groups[c] = groups[c] || []).push(m);
+  });
+  el.innerHTML = CAT_ORDER.filter(c => groups[c]).map(c => {
+    const rows = groups[c].map(m => `
+      <div class="manage-row">
+        <span class="m-icon">${m.icon}</span>
+        <span class="m-name">${escapeHtml(itemName(m))}</span>
+        <button class="item-btn edit-btn" onclick="openCustomModal('${escapeAttr(m.id)}')" title="${escapeHtml(t('editItem'))}">${SVG_EDIT}</button>
+        <button class="item-btn del-btn" onclick="removeMasterItem('${escapeAttr(m.id)}')" title="${escapeHtml(t('delete'))}">${SVG_DEL}</button>
+      </div>`).join('');
+    return `<div class="manage-cat">${CATEGORIES[c].icon} ${escapeHtml(catName(c))} · ${rows.length}</div>${rows}`;
+  }).join('');
+}
+
+function removeMasterItem(id) {
+  askConfirm(t('removeMasterConfirm'), () => {
+    const master = getMaster();
+    const idx = master.findIndex(x => x.id === id);
+    if (idx === -1) return;
+    master.splice(idx, 1);
+    setMaster(master);
+    renderMasterGrid();
+    renderManageGrid();
+    showToast('🗑 ' + t('removedFromMaster'));
+  }, false);
+}
+
+function resetMaster() {
+  askConfirm(t('resetConfirm'), () => {
+    setMaster(clone(DEFAULT_MASTER));
+    localStorage.setItem('grocery_master_v', String(MASTER_VERSION));
+    renderMasterGrid();
+    renderManageGrid();
+    renderCart();
+    showToast('♻️ ' + t('resetMaster'));
+  }, false);
+}
+
+function clearAllData() {
+  askConfirm(t('clearConfirm'), () => {
+    localStorage.clear();
+    try { indexedDB.deleteDatabase('grocery-marking-backup'); } catch(e) {}
+    location.reload();
+  }, true);
+}
+
+/* ==================== Custom / edit master item ==================== */
+
+function openCustomModal(editId, prefillName) {
+  populateCategorySelect();
+  document.getElementById('customEditId').value = editId || '';
+  if (editId) {
+    const m = getMaster().find(x => x.id === editId);
+    if (m) {
+      document.getElementById('customName').value = m.en || '';
+      document.getElementById('customTelugu').value = m.te || '';
+      document.getElementById('customHindi').value = m.hi || '';
+      document.getElementById('customIcon').value = m.icon || getIcon(m.en) || '🛒';
+      document.getElementById('customCat').value = CATEGORIES[m.cat] ? m.cat : 'other';
+      customSteps = (m.steps && m.steps.length) ? m.steps.slice()
+        : ((m.subs && m.subs.length) ? m.subs.reduce((a, s) => a.concat(s.steps), []) : ['1 Pc']);
+    }
+  } else {
+    document.getElementById('customName').value = prefillName ? prettify(prefillName) : '';
+    document.getElementById('customTelugu').value = '';
+    document.getElementById('customHindi').value = '';
+    document.getElementById('customIcon').value = prefillName ? getIcon(prefillName) : '🛒';
+    document.getElementById('customCat').value = 'other';
+    customSteps = ['1 Pc'];
+  }
+  document.getElementById('customStepInput').value = '';
+  document.getElementById('customModalTitle').innerHTML = (editId ? '✏️ ' + t('editItem') : '➕ ' + t('addCustomItem'));
+  syncIconPicker();
+  renderCustomSteps();
+  openModal('customModal');
+}
+
+function pickIcon(emoji) {
+  document.getElementById('customIcon').value = emoji;
+  document.querySelectorAll('.icon-pick').forEach(b => b.classList.toggle('selected', b.dataset.icon === emoji));
+}
+
+function syncIconPicker() {
+  const cur = document.getElementById('customIcon').value;
+  document.querySelectorAll('.icon-pick').forEach(b => b.classList.toggle('selected', b.dataset.icon === cur));
+}
+
+function addCustomStep() {
+  const input = document.getElementById('customStepInput');
+  const val = input.value.trim();
+  if (!val) return;
+  customSteps.push(val);
+  input.value = '';
+  renderCustomSteps();
+}
+
+function renderCustomSteps() {
+  document.getElementById('customSteps').innerHTML =
+    customSteps.map((s, i) => `<span class="step-chip">${escapeHtml(s)}<button onclick="customSteps.splice(${i},1); renderCustomSteps();" title="&times;">&times;</button></span>`).join('');
+}
+
+function saveCustomItem() {
+  const name = prettify(document.getElementById('customName').value);
+  if (!name) { showToast(t('enterName')); return; }
+  const te = document.getElementById('customTelugu').value.trim() || undefined;
+  const hi = document.getElementById('customHindi').value.trim() || undefined;
+  const icon = document.getElementById('customIcon').value.trim() || getIcon(name);
+  const cat = CATEGORIES[document.getElementById('customCat').value] ? document.getElementById('customCat').value : 'other';
+  const steps = customSteps.map(s => s.trim()).filter(s => s.length);
+  const editId = document.getElementById('customEditId').value;
+  const master = getMaster();
+
+  if (editId) {
+    const idx = master.findIndex(x => x.id === editId);
+    if (idx !== -1) {
+      master[idx] = { ...master[idx], en: name, te, hi, icon, cat, steps: steps.length ? steps : master[idx].steps };
+    }
+  } else {
+    if (master.some(x => (x.en || '').toLowerCase() === name.toLowerCase())) {
+      showToast(t('alreadyInMaster'));
+      return;
+    }
+    let id = slug(name);
+    let n = 2;
+    while (master.some(x => x.id === id)) { id = slug(name) + '-' + n++; }
+    master.push({ id, en: name, te, hi, icon, cat, steps: steps.length ? steps : ['1 Pc'], custom: true });
+  }
+
+  setMaster(master);
+  renderMasterGrid();
+  renderManageGrid();
+  renderCart();
+  closeModal('customModal');
+  showToast('✅ ' + t('addedToMaster'));
+}
+
+/* ==================== Profile ==================== */
+
+function renderProfileLang() {
+  document.querySelectorAll('.lang-option').forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
+}
+
+/* ==================== Statistics ==================== */
+
+function computeStats() {
+  const h = getHistory();
+  if (!h.length) return null;
+  const recent = [];
+  const seen = {};
+  const freq = {};
+  const byMonth = {};
+  const byCat = {};
+  const catById = {};
+  getMaster().forEach(m => {
+    const c = CATEGORIES[m.cat] ? m.cat : 'other';
+    catById[m.id] = c;
+    catById[(m.en || '').toLowerCase()] = c;
+  });
+  for (const entry of h) {
+    const itemsList = entry.items || [];
+    for (const it of itemsList) {
+      const key = String(it.name || it.id || '').toLowerCase();
+      if (!key) continue;
+      if (!seen[key]) {
+        seen[key] = true;
+        recent.push({ name: it.name || it.id, icon: it.icon || '🛒', date: entry.date });
+      }
+      freq[key] = (freq[key] || 0) + 1;
+      const cat = catById[it.id] || catById[key] || 'other';
+      byCat[cat] = (byCat[cat] || 0) + 1;
+    }
+    byMonth[entry.month] = (byMonth[entry.month] || 0) + (itemsList.length || 0);
+  }
+  return {
+    recent: recent.slice(0, 8),
+    freq: Object.entries(freq).sort((a, b) => b[1] - a[1]).slice(0, 8),
+    byMonth,
+    byCat
+  };
+}
+
+function monthName(m) {
+  const parts = String(m).split('-');
+  if (parts.length !== 2) return m;
+  const names = SHARE_MONTHS[lang] || SHARE_MONTHS.en;
+  const idx = parseInt(parts[1], 10) - 1;
+  return (names[idx] || parts[1]) + ' ' + parts[0];
+}
+
+function statRowHtml(k, v) {
+  return `<div class="stat-row"><span class="sr-k">${k}</span><span class="sr-v">${v}</span></div>`;
+}
+
+function renderProfileStats() {
+  const el = document.getElementById('statsContent');
+  const s = computeStats();
+  if (!s) {
+    el.innerHTML = `<p class="stats-note">${escapeHtml(t('noStats'))}</p>`;
+    return;
+  }
+  let html = '<div class="stat-grid">';
+
+  html += `<div class="stat-box"><div class="sb-label">⏱️ ${escapeHtml(t('recentlyPurchased'))}</div>`;
+  html += s.recent.length
+    ? s.recent.map(r => statRowHtml(`<span>${r.icon} ${escapeHtml(r.name)}</span>`, escapeHtml(r.date || ''))).join('')
+    : `<p class="stats-note">—</p>`;
+  html += '</div>';
+
+  html += `<div class="stat-box"><div class="sb-label">🔥 ${escapeHtml(t('frequentlyPurchased'))}</div>`;
+  html += s.freq.length
+    ? s.freq.map(f => statRowHtml(escapeHtml(f[0]), f[1] + '×')).join('')
+    : `<p class="stats-note">—</p>`;
+  html += '</div>';
+
+  const months = Object.keys(s.byMonth).sort().slice(-6);
+  html += `<div class="stat-box"><div class="sb-label">📅 ${escapeHtml(t('monthlyStats'))}</div>`;
+  html += months.length
+    ? months.map(m => statRowHtml(escapeHtml(monthName(m)), s.byMonth[m] + ' ' + t('totalItems'))).join('')
+    : `<p class="stats-note">—</p>`;
+  html += '</div>';
+
+  const cats = CAT_ORDER.filter(c => s.byCat[c]);
+  html += `<div class="stat-box"><div class="sb-label">🗂️ ${escapeHtml(t('categoryStats'))}</div>`;
+  html += cats.length
+    ? cats.map(c => statRowHtml(`<span>${CATEGORIES[c].icon} ${escapeHtml(catName(c))}</span>`, s.byCat[c] + ' ' + t('totalItems'))).join('')
+    : `<p class="stats-note">—</p>`;
+  html += '</div>';
+
+  html += '</div>';
+  html += `<p class="stats-note">${escapeHtml(t('savedHistory'))}: ${getHistory().length}</p>`;
+  el.innerHTML = html;
+}
+
+/* ==================== Dark mode ==================== */
+
+function toggleDark(on) {
+  document.body.classList.toggle('dark', !!on);
+  localStorage.setItem('grocery_dark', on ? '1' : '0');
+}
+
+function initDark() {
+  const dark = localStorage.getItem('grocery_dark') === '1';
+  document.body.classList.toggle('dark', dark);
+  const tgl = document.getElementById('darkToggle');
+  if (tgl) tgl.checked = dark;
+}
+
+/* ==================== Reset actions ==================== */
+
+function resetQuantities() {
+  if (!items.length) { showToast(t('listEmpty')); return; }
+  askConfirm(t('resetQuantities') + '?', () => {
+    items.forEach(i => { i.count = 1; });
+    saveCart();
+    renderCart();
+    showToast('🔢 ' + t('qtyReset'));
+  }, false);
+}
+
+function clearPurchased() {
+  const bought = items.filter(i => i.done);
+  if (!bought.length) { showToast(t('purchasedCleared')); return; }
+  askConfirm(t('clearPurchased') + '?', () => {
+    items = items.filter(i => !i.done);
+    saveCart();
+    renderCart();
+    showToast('✅ ' + t('purchasedCleared'));
+  }, false);
+}
+
+/* ==================== Voice search ==================== */
+
+let recognition = null;
+
+function startVoice() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { showToast(t('voiceUnsupported')); return; }
+  if (recognition) { recognition.stop(); recognition = null; return; }
+  try {
+    recognition = new SR();
+    recognition.lang = lang === 'te' ? 'te-IN' : lang === 'hi' ? 'hi-IN' : 'en-IN';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+    const input = document.getElementById('searchInput');
+    showToast('🎤 ' + t('voiceListening'));
+    recognition.onresult = e => {
+      const text = e.results[0][0].transcript;
+      input.value = text;
+      document.getElementById('clearSearch').classList.toggle('show', !!text);
+      renderMasterGrid(text);
+      showToast('🎤 ' + text);
+    };
+    recognition.onerror = () => { recognition = null; showToast(t('voiceError')); };
+    recognition.onend = () => { recognition = null; };
+    recognition.start();
+  } catch(e) {
+    recognition = null;
+    showToast(t('voiceError'));
+  }
+}
+
+/* ==================== Barcode scanner ==================== */
+
+let scanStream = null;
+let scanLoop = null;
+let scanDetector = null;
+let lastScanCode = '';
+
+async function openScanner() {
+  if (!('BarcodeDetector' in window)) {
+    showToast(t('scanUnsupported'));
+    return;
+  }
+  try {
+    scanDetector = new BarcodeDetector({ formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128', 'code_39', 'qr_code'] });
+  } catch(e) {
+    showToast(t('scanUnsupported'));
+    return;
+  }
+  openModal('scannerModal');
+  document.getElementById('scanHint').textContent = t('scanHint');
+  document.getElementById('scanResult').textContent = '';
+  lastScanCode = '';
+  try {
+    scanStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+    const video = document.getElementById('scannerVideo');
+    video.srcObject = scanStream;
+    await video.play();
+    scanLoop = setInterval(detectBarcode, 400);
+  } catch(e) {
+    stopScanner();
+    showToast(t('cameraError'));
+  }
+}
+
+async function detectBarcode() {
+  if (!scanDetector) return;
+  const video = document.getElementById('scannerVideo');
+  if (!video || video.readyState < 2) return;
+  try {
+    const codes = await scanDetector.detect(video);
+    if (codes && codes.length) {
+      const code = codes[0].rawValue;
+      if (code && code !== lastScanCode) {
+        lastScanCode = code;
+        document.getElementById('scanResult').textContent = t('scanned') + ': ' + code;
+        haptic([12, 30, 12]);
+        stopScanner();
+        const input = document.getElementById('searchInput');
+        input.value = code;
+        document.getElementById('clearSearch').classList.add('show');
+        renderMasterGrid(code);
+        showToast('📷 ' + code);
+      }
+    }
+  } catch(e) {}
+}
+
+function stopScanner() {
+  if (scanLoop) { clearInterval(scanLoop); scanLoop = null; }
+  if (scanStream) {
+    scanStream.getTracks().forEach(t => t.stop());
+    scanStream = null;
+  }
+  const video = document.getElementById('scannerVideo');
+  if (video) video.srcObject = null;
+  closeModal('scannerModal');
+}
+
+/* ==================== Install prompt ==================== */
+
+let deferredPrompt = null;
+
+function installApp() {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.then(() => {
+    deferredPrompt = null;
+    const row = document.getElementById('installRow');
+    if (row) row.style.display = 'none';
+  });
+}
+
+/* ==================== Category select ==================== */
+
+function populateCategorySelect() {
+  const sel = document.getElementById('customCat');
+  if (!sel) return;
+  sel.innerHTML = CAT_ORDER.map(c =>
+    `<option value="${c}">${CATEGORIES[c].icon} ${escapeHtml(catName(c))}</option>`).join('');
+}
+
+/* ==================== WhatsApp share ==================== */
+
+const SHARE_MONTHS = {
+  en: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+  te: ['జనవరి', 'ఫిబ్రవరి', 'మార్చి', 'ఏప్రిల్', 'మే', 'జూన్', 'జూలై', 'ఆగస్టు', 'సెప్టెంబర్', 'అక్టోబర్', 'నవంబర్', 'డిసెంబర్'],
+  hi: ['जनवरी', 'फ़रवरी', 'मार्च', 'अप्रैल', 'मई', 'जून', 'जुलाई', 'अगस्त', 'सितंबर', 'अक्टूबर', 'नवंबर', 'दिसंबर']
+};
+
+function shareDate() {
+  const d = new Date();
+  const month = (SHARE_MONTHS[lang] || SHARE_MONTHS.en)[d.getMonth()];
+  return String(d.getDate()).padStart(2, '0') + ' ' + month + ' ' + d.getFullYear();
+}
+
+function displayWidth(str) {
+  let w = 0;
+  for (const ch of Array.from(String(str))) {
+    w += (/\p{M}/u.test(ch) || ch === '\u200D' || ch === '\uFE0F') ? 0 : 1;
+  }
+  return w;
+}
+
+function padName(name, width) {
+  return name + ' '.repeat(Math.max(0, width - displayWidth(name)) + 2);
+}
+
+function shareWhatsApp() {
+  if (items.length === 0) { showToast(t('addItemsFirst')); return; }
+  const sep = '─'.repeat(28);
+  const nameWidth = Math.max(...items.map(i => displayWidth(cartName(i))));
+  let text = '🛒 ' + t('appName') + '\n' + shareDate() + '\n\n' + sep + '\n\n';
+  items.forEach(item => {
+    text += padName(cartName(item), nameWidth) + formatQty(item) + '\n';
+  });
+  text += '\n' + sep + '\n' + t('totalItems') + ' : ' + items.length + '\n' + sep + '\n\n';
+  text += 'Generated using ' + t('appName');
+  const url = 'https://wa.me/?text=' + encodeURIComponent('```\n' + text + '\n```');
+  window.open(url, '_blank');
+}
+
+/* ==================== Modal / toast helpers ==================== */
+
+function openModal(id) {
+  document.getElementById(id).classList.add('active');
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('active');
+}
+
+function askConfirm(msg, onOk, danger) {
+  document.getElementById('confirmMsg').textContent = msg;
+  const okBtn = document.getElementById('confirmOk');
+  okBtn.className = 'btn ' + (danger ? 'btn-danger' : 'btn-primary');
+  okBtn.textContent = danger ? t('delete') : t('ok');
+  confirmCb = onOk;
+  openModal('confirmModal');
+}
+
+function confirmOk() {
+  if (confirmCb) confirmCb();
+  confirmCb = null;
+  closeModal('confirmModal');
+}
+
+let toastTimeout, toastUndoCb;
+function showToast(msg, undoCallback) {
+  const el = document.getElementById('toast');
+  const undoBtn = document.getElementById('toastUndo');
+  toastUndoCb = undoCallback || null;
+  if (undoBtn) {
+    undoBtn.style.display = undoCallback ? 'inline-block' : 'none';
+    undoBtn.textContent = t('undo');
+  }
+  const msgEl = document.getElementById('toastMsg');
+  if (msgEl) msgEl.textContent = msg; else el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => el.classList.remove('show'), undoCallback ? 4200 : 2400);
+}
+
+function toastUndo() {
+  const cb = toastUndoCb;
+  toastUndoCb = null;
+  document.getElementById('toast').classList.remove('show');
+  if (cb) cb();
+}
+
+/* ==================== Icons / escapes ==================== */
+
+function getIcon(name) {
+  const lower = String(name || '').toLowerCase().trim();
+  for (const [key, icon] of Object.entries(ITEM_ICONS)) {
+    if (lower.includes(key)) return icon;
+  }
+  return ITEM_ICONS.default;
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str == null ? '' : str;
+  return div.innerHTML;
+}
+
+function escapeAttr(str) {
+  return escapeHtml(str).replace(/"/g, '&quot;');
+}
+
+/* ==================== Background ==================== */
 
 function populateBackground() {
   const container = document.getElementById('bgItems');
-  for (let i = 0; i < 20; i++) {
+  for (let i = 0; i < 18; i++) {
     const el = document.createElement('div');
     el.className = 'bg-item';
     el.textContent = BG_ITEMS[i % BG_ITEMS.length];
-    el.style.left = Math.random() * 90 + '%';
-    el.style.top = Math.random() * 90 + '%';
+    el.style.left = Math.random() * 92 + '%';
+    el.style.top = Math.random() * 92 + '%';
     el.style.fontSize = (26 + Math.random() * 26) + 'px';
     el.style.setProperty('--rot', Math.random() * 360 + 'deg');
     el.style.animationDelay = Math.random() * 30 + 's';
@@ -682,232 +2930,28 @@ function populateBackground() {
   }
 }
 
-function updateUnits() {
-  const cat = document.getElementById('categorySelect').value;
-  const unitSel = document.getElementById('unitSelect');
-  const units = CATEGORY_UNITS[cat] || [];
-  unitSel.innerHTML = units.map(u => `<option value="${u}">${u}</option>`).join('');
-}
+/* ==================== Migration ==================== */
 
-function updateEditUnits() {
-  const cat = document.getElementById('editCategory').value;
-  const unitSel = document.getElementById('editUnit');
-  const units = CATEGORY_UNITS[cat] || [];
-  unitSel.innerHTML = units.map(u => `<option value="${u}">${u}</option>`).join('');
-}
-
-function getIcon(name) {
-  const lower = name.toLowerCase().trim();
-  for (const [key, icon] of Object.entries(ITEM_ICONS)) {
-    if (lower.includes(key)) return icon;
+function migrateCartItem(i) {
+  const out = { ...i };
+  const name = String(i.name || i.en || '');
+  if (!out.en) out.en = name;
+  if (!out.id) {
+    const m = getMaster().find(x => (x.en || '').toLowerCase() === name.trim().toLowerCase());
+    if (m) out.id = m.id;
+    else { out.id = 'c' + uid(); out.custom = true; }
   }
-  return ITEM_ICONS.default;
-}
-
-function addItem() {
-  const nameInput = document.getElementById('itemInput');
-  const qtyInput = document.getElementById('qtyInput');
-  const unitSelect = document.getElementById('unitSelect');
-  const name = nameInput.value.trim();
-  const qty = parseInt(qtyInput.value) || 1;
-  const unit = unitSelect.value;
-  const category = document.getElementById('categorySelect').value;
-
-  if (!name) { showToast('Please enter an item name'); return; }
-
-  const item = {
-    id: Date.now() + '_' + Math.random().toString(36).slice(2,6),
-    name, qty, unit, category,
-    icon: getIcon(name),
-    removed: false,
-    addedAt: Date.now()
-  };
-
-  items.push(item);
-  saveToStorage();
-  renderItems();
-
-  nameInput.value = '';
-  qtyInput.value = 1;
-  nameInput.focus();
-  showToast(`✅ Added ${name}`);
-}
-
-function removeItem(id) {
-  const idx = items.findIndex(i => i.id === id);
-  if (idx === -1) return;
-  const item = items[idx];
-  item.removed = true;
-  removedItems.push(item);
-  items.splice(idx, 1);
-  saveToStorage();
-  renderItems();
-}
-
-function restoreItem(id) {
-  const idx = removedItems.findIndex(i => i.id === id);
-  if (idx === -1) return;
-  const item = removedItems[idx];
-  item.removed = false;
-  items.push(item);
-  removedItems.splice(idx, 1);
-  saveToStorage();
-  renderItems();
-}
-
-function deleteItemForever(id) {
-  const idx = removedItems.findIndex(i => i.id === id);
-  if (idx === -1) return;
-  removedItems.splice(idx, 1);
-  saveToStorage();
-  renderItems();
-  showToast('🗑 Item deleted');
-}
-
-function editItem(id) {
-  const allItems = [...items, ...removedItems];
-  const item = allItems.find(i => i.id === id);
-  if (!item) return;
-
-  document.getElementById('editItemId').value = id;
-  document.getElementById('editName').value = item.name;
-  document.getElementById('editQty').value = item.qty;
-  document.getElementById('editCategory').value = item.category;
-  updateEditUnits();
-  document.getElementById('editUnit').value = item.unit;
-  document.getElementById('editModal').classList.add('active');
-}
-
-function saveEditedItem(e) {
-  e.preventDefault();
-  const id = document.getElementById('editItemId').value;
-  const allItems = [...items, ...removedItems];
-  const item = allItems.find(i => i.id === id);
-  if (!item) return;
-
-  item.name = document.getElementById('editName').value.trim();
-  item.qty = parseInt(document.getElementById('editQty').value) || 1;
-  item.category = document.getElementById('editCategory').value;
-  item.unit = document.getElementById('editUnit').value;
-  item.icon = getIcon(item.name);
-
-  saveToStorage();
-  renderItems();
-  closeEditModal();
-  showToast('✅ Item updated');
-}
-
-function closeEditModal() {
-  document.getElementById('editModal').classList.remove('active');
-}
-
-function resetCart() {
-  if (items.length === 0 && removedItems.length === 0) { showToast('Cart is already empty'); return; }
-  if (!confirm('Reset the entire cart? All items will be cleared.')) return;
-  items = [];
-  removedItems = [];
-  saveToStorage();
-  renderItems();
-  showToast('🗑 Cart cleared');
-}
-
-function renderItems() {
-  const list = document.getElementById('itemsList');
-  const allItems = [...items, ...removedItems];
-
-  if (allItems.length === 0) {
-    list.innerHTML = `<li class="empty-state"><div class="icon">🛒</div><p>No items added yet. Start adding your groceries!</p></li>`;
-    updateTotal();
-    return;
+  if (out.stepValue == null) {
+    const unitMap = { Kg: 'Kg', Grams: 'g', Liters: 'L', ml: 'ml', Pieces: 'Pc', Dozen: 'Dozen', Small: 'Pc', Medium: 'Pc', Large: 'Pc' };
+    out.stepValue = parseFloat(i.qty) || 1;
+    out.stepUnit = unitMap[i.unit] || normalizeUnit(i.unit) || 'Pc';
+    out.count = 1;
   }
-
-  list.innerHTML = allItems.map((item, idx) => {
-    const isRemoved = item.removed;
-    const actions = isRemoved
-      ? `<button class="item-btn restore-btn" onclick="restoreItem('${item.id}')" title="Restore">↩</button>
-         <button class="item-btn del-btn" onclick="deleteItemForever('${item.id}')" title="Delete">🗑</button>`
-      : `<button class="item-btn edit-btn" onclick="editItem('${item.id}')" title="Edit">✏</button>
-         <button class="item-btn del-btn" onclick="removeItem('${item.id}')" title="Remove">🗑</button>`;
-
-    return `<li class="item-card ${isRemoved ? 'removed' : ''}" data-id="${item.id}" style="animation-delay:${idx * 0.04}s">
-      <div class="item-content">
-        <span class="item-icon">${item.icon}</span>
-        <div class="item-info">
-          <div class="item-name">${escapeHtml(item.name)}</div>
-          <div class="item-detail">${item.qty} × ${item.unit}${isRemoved ? ' (removed)' : ''}</div>
-        </div>
-        <div class="item-actions">${actions}</div>
-      </div>
-    </li>`;
-  }).join('');
-
-  document.querySelectorAll('.item-card').forEach(card => {
-    const id = card.dataset.id;
-    const item = [...items, ...removedItems].find(i => i.id === id);
-    if (item) attachSwipe(card, item);
-  });
-
-  updateTotal();
-}
-
-function updateTotal() {
-  const active = items.filter(i => !i.removed).length;
-  document.getElementById('totalCount').textContent = active;
-}
-
-function escapeHtml(str) {
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
-}
-
-function attachSwipe(el, item) {
-  let startX = 0, curX = 0, isDragging = false;
-  const threshold = 60;
-
-  function onStart(x) { startX = x; curX = x; isDragging = true; }
-
-  function onMove(x) {
-    if (!isDragging) return;
-    curX = x;
-    const diff = curX - startX;
-    const content = el.querySelector('.item-content');
-    if (content) {
-      content.style.transition = 'none';
-      content.style.transform = `translateX(${diff}px)`;
-    }
-  }
-
-  function onEnd() {
-    if (!isDragging) return;
-    isDragging = false;
-    const diff = curX - startX;
-    const content = el.querySelector('.item-content');
-    if (!content) return;
-
-    if (diff < -threshold && !item.removed) {
-      removeItem(item.id);
-      showToast(`🗑 Removed ${item.name}`);
-    } else if (diff > threshold && item.removed) {
-      restoreItem(item.id);
-      showToast(`↩ Restored ${item.name}`);
-    } else {
-      content.style.transition = 'transform 0.25s';
-      content.style.transform = 'translateX(0)';
-    }
-  }
-
-  el.addEventListener('touchstart', e => { onStart(e.touches[0].clientX); }, { passive: true });
-  el.addEventListener('touchmove', e => { onMove(e.touches[0].clientX); }, { passive: true });
-  el.addEventListener('touchend', onEnd, { passive: true });
-  el.addEventListener('mousedown', e => { onStart(e.clientX); });
-  document.addEventListener('mousemove', e => { if (isDragging) onMove(e.clientX); });
-  document.addEventListener('mouseup', () => { if (isDragging) onEnd(); });
-}
-
-function saveToStorage() {
-  const data = { items, removedItems };
-  localStorage.setItem('grocery_cart', JSON.stringify(data));
+  if (!out.sub) out.sub = '';
+  if (out.done == null) out.done = false;
+  if (out.note == null) out.note = '';
+  if (out.fav == null) out.fav = false;
+  return out;
 }
 
 function loadFromStorage() {
@@ -915,133 +2959,137 @@ function loadFromStorage() {
     const raw = localStorage.getItem('grocery_cart');
     if (raw) {
       const data = JSON.parse(raw);
-      items = data.items || [];
-      removedItems = data.removedItems || [];
+      items = (data.items || []).map(migrateCartItem);
+      saveCart();
     }
   } catch(e) {}
 }
 
-function getSavedLists() {
-  try {
-    return JSON.parse(localStorage.getItem('grocery_lists') || '[]');
-  } catch(e) { return []; }
-}
+/* ==================== Init ==================== */
 
-function setSavedLists(lists) {
-  localStorage.setItem('grocery_lists', JSON.stringify(lists));
-}
+document.addEventListener('DOMContentLoaded', () => {
+  loadFromStorage();
+  initDark();
+  renderMasterGrid();
+  renderCart();
+  renderSavedLists();
+  renderManageGrid();
+  renderProfileLang();
+  renderI18n();
+  switchView('home');
+  populateBackground();
 
-function saveCurrentList() {
-  const active = items.filter(i => !i.removed);
-  if (active.length === 0) { showToast('Add some items first!'); return; }
-
-  const now = new Date();
-  const dateStr = now.toLocaleDateString();
-  const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-  const lists = getSavedLists();
-  const list = {
-    id: Date.now().toString(),
-    date: dateStr,
-    time: timeStr,
-    timestamp: dateStr + ' ' + timeStr,
-    items: JSON.parse(JSON.stringify(active))
-  };
-  lists.unshift(list);
-  setSavedLists(lists);
-  showToast('💾 List saved!');
-}
-
-function showSavedLists() {
-  const modal = document.getElementById('savedListsModal');
-  const content = document.getElementById('savedListsContent');
-  const lists = getSavedLists();
-
-  if (lists.length === 0) {
-    content.innerHTML = `<div class="empty-state"><div class="icon">🕒</div><p>No saved lists yet.</p></div>`;
-  } else {
-    content.innerHTML = lists.map(list => `
-      <div class="saved-list-card">
-        <div class="list-header">
-          <span class="list-name">🛒 Grocery List</span>
-          <span class="list-timestamp">${escapeHtml(list.date && list.time ? list.date + ' ' + list.time : list.timestamp || '')}</span>
-        </div>
-        <div class="list-item-count">📦 ${list.items.length} item${list.items.length !== 1 ? 's' : ''}</div>
-        <div class="saved-list-actions">
-          <button class="btn btn-primary" onclick="loadSavedList('${list.id}')">➕ Add Items</button>
-          <button class="btn btn-danger" onclick="deleteList('${list.id}')">🗑 Delete</button>
-        </div>
-      </div>
-    `).join('');
-  }
-
-  modal.classList.add('active');
-}
-
-function closeSavedLists() {
-  document.getElementById('savedListsModal').classList.remove('active');
-}
-
-function loadSavedList(listId) {
-  const lists = getSavedLists();
-  const list = lists.find(l => l.id === listId);
-  if (!list) { showToast('List not found'); return; }
-
-  const savedItems = JSON.parse(JSON.stringify(list.items));
-
-  for (const savedItem of savedItems) {
-    const existing = items.find(i =>
-      i.name.toLowerCase() === savedItem.name.toLowerCase() && !i.removed
-    );
-
-    if (existing) {
-      existing.qty += savedItem.qty;
-    } else {
-      savedItem.id = Date.now() + '_' + Math.random().toString(36).slice(2, 6);
-      savedItem.addedAt = Date.now();
-      items.push(savedItem);
-    }
-  }
-
-  saveToStorage();
-  renderItems();
-  closeSavedLists();
-  showToast(`📋 Added ${savedItems.length} item${savedItems.length !== 1 ? 's' : ''} from saved list`);
-}
-
-function deleteList(listId) {
-  if (!confirm('Delete this saved list?')) return;
-  let lists = getSavedLists();
-  lists = lists.filter(l => l.id !== listId);
-  setSavedLists(lists);
-  showSavedLists();
-  showToast('🗑 List deleted');
-}
-
-function shareWhatsApp() {
-  const active = items.filter(i => !i.removed);
-  if (active.length === 0) { showToast('Add some items first!'); return; }
-
-  let text = '🛒 *Grocery List*\n\n';
-  active.forEach((item) => {
-    text += `${item.icon || '•'} ${item.name} — ${item.qty} ${item.unit}\n`;
+  const searchInput = document.getElementById('searchInput');
+  searchInput.addEventListener('input', e => {
+    document.getElementById('clearSearch').classList.toggle('show', !!e.target.value);
+    renderMasterGrid(e.target.value);
   });
-  text += `\n📦 *Total Items:* ${active.length}`;
-  text += `\n\n_Generated using Grocery Marking_`;
+  document.getElementById('clearSearch').addEventListener('click', () => {
+    searchInput.value = '';
+    document.getElementById('clearSearch').classList.remove('show');
+    renderMasterGrid('');
+    searchInput.focus();
+  });
 
-  const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
-  window.open(url, '_blank');
-}
+  document.getElementById('masterGrid').addEventListener('click', e => {
+    const tile = e.target.closest('.master-tile');
+    if (tile) openQuickAdd(tile.dataset.id);
+  });
 
-let toastTimeout;
+  /* ---- Swipe gestures: left = purchased, right = restore ---- */
+  let swipeEl = null, swipeStartX = 0, swipeStartY = 0, swipeDX = 0;
+  const itemsList = document.getElementById('itemsList');
+  itemsList.addEventListener('touchstart', e => {
+    const card = e.target.closest('.item-card');
+    if (!card) return;
+    if (e.target.closest('.stepper') || e.target.closest('.item-actions') || e.target.closest('.item-check') || e.target.closest('.fav-btn')) return;
+    swipeEl = card;
+    swipeStartX = e.touches[0].clientX;
+    swipeStartY = e.touches[0].clientY;
+    swipeDX = 0;
+    card.style.transition = 'none';
+  }, { passive: true });
+  itemsList.addEventListener('touchmove', e => {
+    if (!swipeEl) return;
+    const dx = e.touches[0].clientX - swipeStartX;
+    const dy = e.touches[0].clientY - swipeStartY;
+    if (Math.abs(dx) < Math.abs(dy)) return;
+    e.preventDefault();
+    swipeDX = dx;
+    swipeEl.style.transform = 'translateX(' + dx + 'px)';
+  }, { passive: false });
+  itemsList.addEventListener('touchend', () => {
+    if (!swipeEl) return;
+    const card = swipeEl;
+    const id = card.dataset.id;
+    swipeEl = null;
+    if (swipeDX <= -60) {
+      const item = items.find(i => i.id === id);
+      if (item && !item.done) { item.done = true; saveCart(); renderCart(); showToast('✅ ' + cartName(item) + ' · ' + t('purchased')); }
+    } else if (swipeDX >= 60) {
+      const item = items.find(i => i.id === id);
+      if (item && item.done) { item.done = false; saveCart(); renderCart(); showToast('↩️ ' + cartName(item) + ' · ' + t('restore')); }
+    } else {
+      card.style.transition = 'transform 0.25s';
+      card.style.transform = 'translateX(0)';
+      setTimeout(() => { card.style.transition = ''; }, 260);
+    }
+  });
 
-function showToast(msg) {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.classList.add('show');
-  clearTimeout(toastTimeout);
-  toastTimeout = setTimeout(() => el.classList.remove('show'), 2500);
-}
+  document.getElementById('qaSteps').addEventListener('click', e => {
+    const btn = e.target.closest('.qa-step');
+    if (btn && pendingQuickId) addItemByMaster(pendingQuickId, btn.dataset.step);
+  });
+
+  document.getElementById('qaSubTabs').addEventListener('click', e => {
+    const btn = e.target.closest('.qa-subtab');
+    if (!btn || pendingQuickId == null) return;
+    const m = getMaster().find(x => x.id === pendingQuickId);
+    if (!m || !m.subs) return;
+    pendingQuickSub = parseInt(btn.dataset.sub, 10);
+    renderSubTabs(m);
+    renderQaSteps(m.subs[pendingQuickSub] ? m.subs[pendingQuickSub].steps : []);
+  });
+
+  document.getElementById('iconPicker').innerHTML = COMMON_ICONS.map(i =>
+    `<button type="button" class="icon-pick" data-icon="${i}" onclick="pickIcon('${i}')">${i}</button>`).join('');
+  document.getElementById('customIcon').addEventListener('input', syncIconPicker);
+
+  document.querySelectorAll('.modal-overlay').forEach(ov => {
+    ov.addEventListener('click', e => {
+      if (e.target === ov) {
+        if (ov.id === 'scannerModal') stopScanner();
+        else ov.classList.remove('active');
+      }
+    });
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      if (scanStream) stopScanner();
+      document.querySelectorAll('.modal-overlay.active').forEach(ov => {
+        if (ov.id !== 'scannerModal') ov.classList.remove('active');
+      });
+    }
+  });
+
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferredPrompt = e;
+    const row = document.getElementById('installRow');
+    if (row) row.style.display = 'flex';
+  });
+  window.addEventListener('appinstalled', () => {
+    deferredPrompt = null;
+    const row = document.getElementById('installRow');
+    if (row) row.style.display = 'none';
+  });
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('service-worker.js').catch(() => {});
+    });
+  }
+});
 </script>
 </body>
 </html>
